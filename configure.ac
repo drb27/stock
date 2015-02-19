@@ -11,6 +11,12 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_PROG_CC
 
+# Check for Doxygen
+AC_CHECK_PROGS([DOXYGEN],[doxygen])
+if test -z "$DOXYGEN";
+   then AC_MSG_WARN([Doxygen not found - disabling Doxygen support])
+fi
+
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcppunit':
 AC_CHECK_LIB([cppunit], [main])
@@ -31,5 +37,12 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 
-AC_CONFIG_FILES([Makefile])
+# Set up Doxygen support
+AM_CONDITIONAL([HAVE_DOXYGEN],[test -n "$DOXYGEN"])
+AM_COND_IF([HAVE_DOXYGEN],[AC_CONFIG_FILES([docs/Doxyfile])])
+
+# Generate the makefiles
+AC_CONFIG_FILES([Makefile docs/Makefile])
+
+# Output the results
 AC_OUTPUT

@@ -21,7 +21,7 @@ stock_tests_SOURCES = src/test/main.cpp \
 
 stock_tests_CXXFLAGS=-O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 CXX=g++-4.9
-
+SUBDIRS=docs/
 coverage: check
 	rm -rf cov
 	mkdir cov

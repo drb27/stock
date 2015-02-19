@@ -27,6 +27,10 @@
 stock
 stock_tests
 
+#Distributions
+*.tar
+*.tar.gz
+
 #coverage information
 *.gcda
 *.gcno
@@ -53,4 +57,12 @@ src/test/.dirstamp
 stock_tests.log
 stock_tests.trs
 test-suite.log
-
+Makefile
+docs/Makefile
+docs/Makefile.in
+docs/html
+docs/latex
+docs/man
+docs/Doxyfile
+docs/doxyfile.stamp
+autoscan.log
