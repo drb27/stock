@@ -25,8 +25,12 @@
 # Executables
 *.out
 stock
-stock-tests
+stock_tests
 
+#coverage information
+*.gcda
+*.gcno
+cov
 
 #Autotools
 .deps
@@ -44,3 +48,9 @@ missing
 src/stock/.deps
 src/stock/.dirstamp
 stamp-h1
+config.log
+src/test/.dirstamp
+stock_tests.log
+stock_tests.trs
+test-suite.log
+
