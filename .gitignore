@@ -23,6 +23,24 @@
 *.lib
 
 # Executables
-*.exe
 *.out
-*.app
+stock
+stock-tests
+
+
+#Autotools
+.deps
+Makefile.in
+aclocal.m4
+autom4te.cache
+compile
+config.h
+config.h.in
+config.status
+configure
+depcomp
+install-sh
+missing
+src/stock/.deps
+src/stock/.dirstamp
+stamp-h1
