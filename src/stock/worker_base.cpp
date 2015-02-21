@@ -30,9 +30,27 @@ worker_base::worker_base()
  */
 void worker_base::log(const string& msg, ostream& os) const
 {
+    /*
     static mutex cs;
     {
 	lock_guard<mutex> l(cs);
 	os << "[WRK" << id << "]: " << msg << endl;
+	}*/
+}
+
+void worker_base::set_completion_action( function<void()> f )
+{
+    hasCompletionAction = true;
+    completion = f;
+}
+
+void worker_base::operator()(int i)
+{
+    try
+    {
+	do_work(i);
     }
+    catch (std::exception) {}
+    if (hasCompletionAction)
+	completion();
 }

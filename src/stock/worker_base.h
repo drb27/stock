@@ -3,9 +3,11 @@
 
 #include <string>
 #include <ostream>
+#include <functional>
 
 using std::string;
 using std::ostream;
+using std::function;
 
 /**
  * Simple implemetation of a worker thread.
@@ -28,11 +30,15 @@ class worker_base
 public:
 
     worker_base();
-    virtual void operator()(int)=0;
-
+    virtual void operator()(int) final;
+    virtual void do_work(int)=0;
+    
+    virtual void set_completion_action( function<void()> f ) final;
 protected:
     virtual void log(const string& msg, ostream& os = std::cout ) const final;
     int id;
+    bool hasCompletionAction = false;
+    function<void()> completion;
 };
 
 #endif

@@ -10,6 +10,9 @@ AC_CONFIG_HEADERS([config.h])
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AM_PROG_AR
+
+AC_PROG_RANLIB
 
 # Check for Doxygen
 AC_CHECK_PROGS([DOXYGEN],[doxygen])
@@ -33,6 +36,10 @@ AC_CHECK_HEADERS([memory.h stdlib.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 AC_TYPE_SIZE_T
+
+#Check fot GTK3
+AM_PATH_GTK_3_0
+PKG_CHECK_MODULES(GTK,gtk+-3.0)
 
 # Checks for library functions.
 AC_FUNC_MALLOC

@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*~
 
 # Precompiled Headers
 *.gch
@@ -26,6 +27,7 @@
 *.out
 stock
 stock_tests
+stockgui
 
 #Distributions
 *.tar
