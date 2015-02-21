@@ -1,5 +1,5 @@
 #include "test-buffer.h"
-#include "../buffer.h"
+#include "../stock/buffer.h"
 
 BufferTestFixture::BufferTestFixture()
 {

@@ -15,17 +15,16 @@ using std::regex;
 
 extern std::string g_ticker;
 
-const std::string cURL = "https://query.yahooapis.com/v1/public/yql?q=select%20Bid,Ask%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%22{STOCK}%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
+const std::string cURL = "https://query.yahooapis.com/v1/public/yql?q=select%20Name,LastTradePriceOnly%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%22{STOCK}%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
 
 size_t stock_fetcher::rx_data(void *rx_buffer, size_t size, size_t nmemb, void *local_buffer)
 {
     buffer* pBuffer = reinterpret_cast<buffer*>(local_buffer);
     pBuffer->append(rx_buffer,nmemb);
-    cout << size << "," << nmemb << endl;
     return size;
 }
 
-void stock_fetcher::operator()(int id)
+void stock_fetcher::do_work(int id)
 {
     /* Thread initialisation */
     this->id = id;
@@ -77,19 +76,28 @@ void stock_fetcher::operator()(int id)
 	auto results = json_object_get(query,"results");
 	if (results) log("Got results");
 	auto quote = json_object_get(results,"quote");
-	auto bid = json_object_get(quote,"Bid");
-	auto ask = json_object_get(quote,"Ask");
+	auto bid = json_object_get(quote,"LastTradePriceOnly");
 	auto str_bid = json_string_value(bid);
-	auto str_ask = json_string_value(ask);
 	log(str_bid);
-	log(str_ask);
+	deliver_result(str_bid);
 
 	trash.add(bid);
-	trash.add(ask);
 	trash.add(quote);
 	trash.add(results);
 	trash.add(query);
 	trash.add(root);
     }
 
+}
+
+void stock_fetcher::deliver_result(const std::string& s )
+{
+    if (hasResultCallback)
+	result_callback(s);
+}
+
+void stock_fetcher::set_result_callback( std::function<void(std::string)> f )
+{
+    result_callback = f;
+    hasResultCallback = true;
 }

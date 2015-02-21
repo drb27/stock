@@ -3,6 +3,8 @@
  *
  * This is where all the magic happens
  */
+
+#include <config.h>
 #include <iostream>
 #include <string>
 #include <thread>

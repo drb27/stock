@@ -4,6 +4,7 @@
 *.o
 *.obj
 *.d
+*~
 
 # Precompiled Headers
 *.gch
@@ -27,3 +28,46 @@
 *.exe
 *.out
 *.app
+stock
+stock_tests
+stockgui
+
+#Distributions
+*.tar
+*.tar.gz
+
+#coverage information
+*.gcda
+*.gcno
+cov
+
+#Autotools
+.deps
+Makefile.in
+aclocal.m4
+autom4te.cache
+compile
+config.h
+config.h.in
+config.status
+configure
+depcomp
+install-sh
+missing
+src/stock/.deps
+src/stock/.dirstamp
+stamp-h1
+config.log
+src/test/.dirstamp
+stock_tests.log
+stock_tests.trs
+test-suite.log
+Makefile
+docs/Makefile
+docs/Makefile.in
+docs/html
+docs/latex
+docs/man
+docs/Doxyfile
+docs/doxyfile.stamp
+autoscan.log
