@@ -14,7 +14,10 @@
 #include <worker_base.h>
 #include <stock_fetcher.h>
 
+/// The stock fetcher thread takes its input from here. 
 std::string g_ticker = "AAPL";
+
+/// The output from the stock fetcher thread is stored here.
 std::string g_result = ""; 
 
 using std::thread;
@@ -30,9 +33,16 @@ typedef struct _controls_t
     GtkWidget* gobutton;
     GtkEntry* lasttradeprice;
     GtkEntry* ticker;
+    GtkDialog* about;
+    GtkWidget* about_ok;
+    GtkImageMenuItem* menu_about;
 } controls_t;
 
 static controls_t controls;
+
+/** @name Callbacks
+ * @{
+ */
 
 /**
  * Callback invoked when the main window is destroyed.
@@ -51,10 +61,30 @@ gboolean on_fetch_complete(gpointer pdata)
     return FALSE;
 }
 
+gboolean on_menu_about(gpointer pdata)
+{
+    gint result = gtk_dialog_run( controls.about );
+    //gtk_widget_destroy(GTK_WIDGET(controls.about));
+    gtk_widget_hide(GTK_WIDGET(controls.about));
+    return FALSE;
+}
+
+/**
+ * Callback invoked each time a stock query result is available
+ */
 gboolean on_got_result(gpointer pdata)
 {
     gtk_entry_set_text(controls.lasttradeprice,g_result.c_str());
 }
+
+/**
+ * Callback invoked when the OK button of the about dialog is pressed
+ */
+void on_about_ok()
+{
+    gtk_dialog_response(controls.about,0);
+}
+
 
 /**
  * Callback invoked when the 'go' button is clicked.
@@ -72,7 +102,10 @@ void on_button_clicked()
 
     // Initiate a worker thread to fetch the stock details
     stock_fetcher s;
-    s.set_completion_action( [](){ g_main_context_invoke(NULL,on_fetch_complete,nullptr); });
+    s.set_completion_action( []()
+			     { 
+				 g_main_context_invoke(NULL,on_fetch_complete,nullptr); 
+			     });
     
     s.set_result_callback( [](std::string s)
 			   {
@@ -82,6 +115,8 @@ void on_button_clicked()
     thread t(s,99);
     t.detach();
 }
+
+//@}
 
 int main(int argc, char* argv[])
 {
@@ -111,6 +146,14 @@ int main(int argc, char* argv[])
     /* Locate the lasttradeprice/ticker text entry widget */
     controls.lasttradeprice = GTK_ENTRY( gtk_builder_get_object(builder,"lasttradeprice") );
     controls.ticker = GTK_ENTRY( gtk_builder_get_object(builder,"ticker") );
+
+    /* Locate the controls for the about box */
+    controls.about = GTK_DIALOG( gtk_builder_get_object(builder,"dialog_about"));
+    controls.about_ok = GTK_WIDGET( gtk_builder_get_object(builder,"dlg_about_ok_btn") );
+    controls.menu_about = GTK_IMAGE_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
+    g_signal_connect(controls.menu_about,"activate", G_CALLBACK(on_menu_about), NULL );
+    g_signal_connect(controls.about_ok,"clicked", G_CALLBACK(on_about_ok), NULL );
+    
     /* Dispose of the builder */
     g_object_unref(builder);
 

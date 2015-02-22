@@ -49,7 +49,7 @@ AM_CONDITIONAL([HAVE_DOXYGEN],[test -n "$DOXYGEN"])
 AM_COND_IF([HAVE_DOXYGEN],[AC_CONFIG_FILES([docs/Doxyfile])])
 
 # Generate the makefiles
-AC_CONFIG_FILES([Makefile docs/Makefile])
+AC_CONFIG_FILES([Makefile docs/Makefile src/stockgui/window.ui])
 
 # Output the results
 AC_OUTPUT
