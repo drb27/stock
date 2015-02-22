@@ -1,4 +1,5 @@
-AM_CXXFLAGS=-std=c++11 -pthread
+BUILDSTAMP=$(shell date)
+AM_CXXFLAGS=-std=c++11 -pthread -DBUILDSTAMP="$(BUILDSTAMP)"
 bin_PROGRAMS=stock stockgui
 stock_SOURCES=src/stock/main.cpp
 stock_LDADD=libstock.a
@@ -30,7 +31,7 @@ stock_tests_SOURCES = src/test/main.cpp \
 
 stock_tests_CXXFLAGS=-O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 
-EXTRA_DIST=src/stockgui/window.ui src/stockgui/stock.gresource.xml
+EXTRA_DIST=src/stockgui/window.ui.in src/stockgui/stock.gresource.xml
 
 CXX=g++-4.9
 SUBDIRS=docs/

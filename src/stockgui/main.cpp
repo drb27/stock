@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <thread>
+#include <sstream>
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
@@ -19,6 +20,11 @@ std::string g_ticker = "AAPL";
 
 /// The output from the stock fetcher thread is stored here.
 std::string g_result = ""; 
+
+/// Build datestamp
+#define Q(X) #X
+#define QUOTE(X) Q(X)
+const std::string g_buildstamp = QUOTE(BUILDSTAMP);
 
 using std::thread;
 
@@ -36,6 +42,7 @@ typedef struct _controls_t
     GtkDialog* about;
     GtkWidget* about_ok;
     GtkImageMenuItem* menu_about;
+    GtkLabel* buildstamp;
 } controls_t;
 
 static controls_t controls;
@@ -64,7 +71,6 @@ gboolean on_fetch_complete(gpointer pdata)
 gboolean on_menu_about(gpointer pdata)
 {
     gint result = gtk_dialog_run( controls.about );
-    //gtk_widget_destroy(GTK_WIDGET(controls.about));
     gtk_widget_hide(GTK_WIDGET(controls.about));
     return FALSE;
 }
@@ -151,8 +157,14 @@ int main(int argc, char* argv[])
     controls.about = GTK_DIALOG( gtk_builder_get_object(builder,"dialog_about"));
     controls.about_ok = GTK_WIDGET( gtk_builder_get_object(builder,"dlg_about_ok_btn") );
     controls.menu_about = GTK_IMAGE_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
+    controls.buildstamp = GTK_LABEL( gtk_builder_get_object(builder,"buildstamp") );
     g_signal_connect(controls.menu_about,"activate", G_CALLBACK(on_menu_about), NULL );
     g_signal_connect(controls.about_ok,"clicked", G_CALLBACK(on_about_ok), NULL );
+
+    /* Set the buildtstamp label */
+    std::stringstream s;
+    s << "Built on " << g_buildstamp;
+    gtk_label_set_text(controls.buildstamp, s.str().c_str());
     
     /* Dispose of the builder */
     g_object_unref(builder);
