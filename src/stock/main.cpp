@@ -37,6 +37,13 @@ int main( int argc, char* argv[] )
     
     /* Create a stock fetcher thread */
     stock_fetcher s;
+
+    s.set_result_callback( [](string s)
+			   {
+			       cout << s << endl;
+			   }
+			  );
+
     thread t(s,99);
     threadset.push_back(std::move(t));
     
