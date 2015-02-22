@@ -41,7 +41,7 @@ typedef struct _controls_t
     GtkEntry* ticker;
     GtkDialog* about;
     GtkWidget* about_ok;
-    GtkImageMenuItem* menu_about;
+    GtkMenuItem* menu_about;
     GtkLabel* buildstamp;
 } controls_t;
 
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
     /* Locate the controls for the about box */
     controls.about = GTK_DIALOG( gtk_builder_get_object(builder,"dialog_about"));
     controls.about_ok = GTK_WIDGET( gtk_builder_get_object(builder,"dlg_about_ok_btn") );
-    controls.menu_about = GTK_IMAGE_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
+    controls.menu_about = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
     controls.buildstamp = GTK_LABEL( gtk_builder_get_object(builder,"buildstamp") );
     g_signal_connect(controls.menu_about,"activate", G_CALLBACK(on_menu_about), NULL );
     g_signal_connect(controls.about_ok,"clicked", G_CALLBACK(on_about_ok), NULL );
