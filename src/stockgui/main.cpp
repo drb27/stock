@@ -68,6 +68,9 @@ gboolean on_fetch_complete(gpointer pdata)
     return FALSE;
 }
 
+/**
+ * Callback invoked when the About menu option is selected
+ */
 gboolean on_menu_about(gpointer pdata)
 {
     /* Run the dialog box until the user clicks the 'ok' button */
@@ -127,6 +130,12 @@ void on_button_clicked()
 
 //@}
 
+/**
+ * Application entry point.
+ *
+ * Constructuts the UI from compiled-in resources, then hands control over
+ * to the GTK+ event processing loop.
+ */
 int main(int argc, char* argv[])
 {
     GObject *window;
@@ -141,8 +150,10 @@ int main(int argc, char* argv[])
     /* Contruct the UI from the compiled-in resource data */
     GError *error=nullptr;
     builder = gtk_builder_new();
+
     gtk_builder_add_from_resource(builder,
-				  "/org/david.bradshaw.usa.gmail.com/stockgui/window.ui",&error); 
+				  "/org/david.bradshaw.usa.gmail.com/stockgui/window.ui",
+				  &error);
 
     /* Set up the main window */
     window = gtk_builder_get_object(builder,"window");
