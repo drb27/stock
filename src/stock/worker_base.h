@@ -87,8 +87,14 @@ class worker_base
 {
 public:
 
-worker_base();
-virtual void operator()(int) final;
+    worker_base();
+    virtual void operator()(int) final;
+
+    /**
+     * Implements the work of the worker. Abstract in worker_base, classes inheriting
+     * this method must implement it if instances are to be realized at runtime.
+     */
+
     virtual void do_work(int)=0;
     
     virtual void set_completion_action( function<void()> f ) final;
