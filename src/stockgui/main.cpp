@@ -70,7 +70,10 @@ gboolean on_fetch_complete(gpointer pdata)
 
 gboolean on_menu_about(gpointer pdata)
 {
+    /* Run the dialog box until the user clicks the 'ok' button */
     gint result = gtk_dialog_run( controls.about );
+
+    /* Must manually hide the about box - but don't destroy it! */
     gtk_widget_hide(GTK_WIDGET(controls.about));
     return FALSE;
 }
