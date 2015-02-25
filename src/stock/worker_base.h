@@ -6,6 +6,7 @@
 #include <functional>
 #include <thread>
 #include <type_traits>
+#include "problem.h"
 
 using std::string;
 using std::ostream;
@@ -59,13 +60,71 @@ class i_worker : public i_resultor<WorkResult>
     
 public:
     
-    virtual T perform_sync() =0;
+    /**
+     * Performs the work synchronously, and returns a result code when done.
+     * @return A WorkResult code indicating the degree of success with which the operation completed.
+     */
+    virtual WorkResult perform_sync() =0;
     virtual void perform_async() =0;
     virtual bool has_performed() const =0;
-    virtual T retrieve_async() const =0;
-    virtual T wait() const =0;
+    virtual T& retrieve() const =0;
+    virtual WorkResult wait() const =0;
     
 };
+
+/** 
+ * A class which performs a task, either synchronously or
+ * asynchronously.
+ */
+template<class Ti, class To>
+class task : public i_worker<To>
+{
+public:
+
+    task( problem<Ti,To>& p ) : _problem(p) {}
+
+    ///@name implementation of i_worker:
+    ///@{
+
+    virtual WorkResult perform_sync()
+	{
+	    WorkResult returnCode = WorkResult::NotPerformed;
+
+	    try
+	    {
+		_output = _problem();
+		returnCode = WorkResult::Success;
+	    }
+	    catch ( const std::exception& e )
+	    {
+		this->_exception = e;
+		return WorkResult::Failure;
+	    }
+
+	    this->_result = returnCode;
+	    _performed=true;
+	    return returnCode;
+
+	}
+
+    virtual bool has_performed() const
+	{
+	    return _performed;
+	}
+
+    virtual To& retrieve() const
+	{
+	    return *_output;
+	}
+    
+
+    ///@}
+
+protected:
+    problem<Ti,To>  _problem;
+    bool _performed=false;
+    To* _output = nullptr;
+}; 
 
 /**
  * Simple implemetation of a worker thread.
@@ -83,20 +142,6 @@ public:
  *     std::thread t(w,1);
  * @endcode 
  */
-
-template<class O,class... Args>
-    using VariadicFunction = std::function<O(Args...)>;
-
-template<class O,class... Args>
-class Problem
-{
-    using FnType = VariadicFunction<O,Args...>;
-
-    FnType _f;
-    O solve(Args... a) { return _f(a...);  }
-    
-};
-
 class worker_base
 {
 public:
