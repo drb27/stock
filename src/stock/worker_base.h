@@ -83,6 +83,20 @@ public:
  *     std::thread t(w,1);
  * @endcode 
  */
+
+template<class O,class... Args>
+    using VariadicFunction = std::function<O(Args...)>;
+
+template<class O,class... Args>
+class Problem
+{
+    using FnType = VariadicFunction<O,Args...>;
+
+    FnType _f;
+    O solve(Args... a) { return _f(a...);  }
+    
+};
+
 class worker_base
 {
 public:
