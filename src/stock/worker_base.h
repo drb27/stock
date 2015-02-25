@@ -116,6 +116,29 @@ public:
 	{
 	    return *_output;
 	}
+
+    virtual void perform_async()
+	{
+	    _thread = new std::thread( [&] () 
+				       {
+					   this->perform_sync();
+					   delete this->_thread;
+					   this->_thread = nullptr;
+				       } );
+	}
+
+    virtual WorkResult wait() const
+	{
+	    if (_thread)
+	    {
+		_thread->join();
+		return WorkResult::NotPerformed;
+	    }
+	    else
+	    {
+		return this->_result;
+	    }
+	} 
     
 
     ///@}
@@ -124,6 +147,7 @@ protected:
     problem<Ti,To>  _problem;
     bool _performed=false;
     To* _output = nullptr;
+    std::thread* _thread = nullptr;
 }; 
 
 /**
