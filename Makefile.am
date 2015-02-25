@@ -10,7 +10,9 @@ stockgui_LDADD=libstock.a $(GTK_LIBS)
 stockgui_CPPFLAGS = $(GTK_CFLAGS) -Isrc/stock/
 
 noinst_LIBRARIES = libstock.a
+
 libstock_a_SOURCES= \
+	src/stock/problem.h \
 	src/stock/buffer.cpp \
 	src/stock/deathrattle.cpp \
 	src/stock/stock_fetcher.cpp \
@@ -27,7 +29,10 @@ stock_tests_SOURCES = src/test/main.cpp \
 	src/test/test-buffer.cpp \
 	src/test/test-buffer.h \
 	src/stock/buffer.cpp \
-	src/stock/buffer.h
+	src/stock/buffer.h \
+	src/test/test-problem.cpp \
+	src/test/test-problem.h \
+	src/stock/problem.h
 
 stock_tests_CXXFLAGS=-O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 

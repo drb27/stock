@@ -11,6 +11,7 @@
 #include <list>
 
 #include <curl/curl.h>
+#include "problem.h"
 #include "worker_base.h"
 #include "stock_fetcher.h"
 

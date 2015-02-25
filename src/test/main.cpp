@@ -8,8 +8,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "test-buffer.h"
+#include "test-problem.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(BufferTestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(ProblemTestFixture);
 
 int main(int argc, char* argv[] )
 {
