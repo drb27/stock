@@ -27,7 +27,6 @@ public:
     typedef std::map<A,S> action_table;
     typedef std::map<S,action_table> transition_table;
     typedef std::map<S,std::function<void()>> function_table;
-    typedef std::map<S,std::condition_variable*> cv_table;
 
     virtual ~state_machine()
     {
@@ -86,6 +85,8 @@ protected:
 	    do_exit_actions_bare();
 	    _state = newState;
 	    do_entry_actions_bare();
+
+	    
 	}
     }
 
@@ -141,15 +142,15 @@ protected:
 
     void wait_for_state_entry(S s) const
     {
+	std::unique_lock<std::mutex> lock(_mutex);
+	bool achievedState=false;
+
+	while(!achievedState)
 	{
-	    LOCK;
-	    // Create a condition variable, if we need one
-	    if ( _entry_cv.find(s)==_entry_cv.end() )
-		_entry_cv[s] = new std::condition_variable();
-
-	    // TODO
+	    _state_change.wait(lock);
+	    if (_state==s)
+		achievedState=true;
 	}
-
     }
 
 private:
@@ -160,8 +161,8 @@ private:
     mutable S _state;
     function_table _entry_actions;
     function_table _exit_actions;
-    cv_table _entry_cv;
-    cv_table _exit_cv;
+    std::condition_variable _state_change;
+
 };
 
 #endif
