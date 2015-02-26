@@ -10,13 +10,12 @@
 #include <stdexcept>
 #include <functional>
 
+#define LOCK std::lock_guard<std::mutex>(this->_mutex)
+
 /**
  * A thread-safe state machine implementation, with a dynamic definition which
  * can be modified at run-time. (Actions only, not states. States are compile-time.
  */
-
-#define LOCK std::lock_guard<std::mutex>(this->_mutex)
-
 template<class S,class A>
 class state_machine
 {
@@ -28,6 +27,11 @@ public:
     typedef std::map<A,S> action_table;
     typedef std::map<S,action_table> transition_table;
     typedef std::map<S,std::function<void()>> function_table;
+    typedef std::map<S,std::condition_variable*> cv_table;
+
+    virtual ~state_machine()
+    {
+    }
 
 
     void add_state(S s)  { LOCK; add_state_bare(s); }
@@ -135,6 +139,19 @@ protected:
 	return _exit_actions.find(s)!=_exit_actions.end();
     }
 
+    void wait_for_state_entry(S s) const
+    {
+	{
+	    LOCK;
+	    // Create a condition variable, if we need one
+	    if ( _entry_cv.find(s)==_entry_cv.end() )
+		_entry_cv[s] = new std::condition_variable();
+
+	    // TODO
+	}
+
+    }
+
 private:
     mutable std::mutex _mutex;
     std::set<S> _states;
@@ -143,6 +160,8 @@ private:
     mutable S _state;
     function_table _entry_actions;
     function_table _exit_actions;
+    cv_table _entry_cv;
+    cv_table _exit_cv;
 };
 
 #endif
