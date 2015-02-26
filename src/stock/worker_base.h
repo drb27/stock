@@ -81,11 +81,11 @@ class task : public i_worker<To>
 {
 public:
 
-    task( problem<Ti,To>& p ) : _problem(p) {}
+    task( problem<Ti,To>& p, std::function<void()>& c  ) : _problem(p), _completion(c) {}
 
     ///@name implementation of i_worker:
     ///@{
-
+    
     virtual WorkResult perform_sync()
 	{
 	    WorkResult returnCode = WorkResult::NotPerformed;
@@ -144,7 +144,8 @@ public:
     ///@}
 
 protected:
-    problem<Ti,To>  _problem;
+    const problem<Ti,To>  _problem;
+    const std::function<void()> _completion;
     bool _performed=false;
     To* _output = nullptr;
     std::thread* _thread = nullptr;

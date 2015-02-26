@@ -21,7 +21,8 @@ libstock_a_SOURCES= \
 	src/stock/deathrattle.h \
 	src/stock/stock_fetcher.h \
 	src/stock/sweepup.h \
-	src/stock/worker_base.h
+	src/stock/worker_base.h \
+	src/stock/state.h 
 
 TESTS=stock_tests
 check_PROGRAMS=stock_tests
@@ -32,7 +33,10 @@ stock_tests_SOURCES = src/test/main.cpp \
 	src/stock/buffer.h \
 	src/test/test-problem.cpp \
 	src/test/test-problem.h \
-	src/stock/problem.h
+	src/stock/problem.h \
+	src/test/test-state.cpp \
+	src/test/test-state.h \
+	src/stock/state.h
 
 stock_tests_CXXFLAGS=-O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 

@@ -7,6 +7,7 @@ using std::lock_guard;
 using std::cout;
 using std::endl;
 
+#include "state.h"
 #include "worker_base.h"
 
 /**
