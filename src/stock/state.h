@@ -56,21 +56,21 @@ protected:
 
     bool is_valid_transition_bare(A a) const
     {
-	const auto& table = (*(_tt.find(_state))).second;
+	const auto& table = _tt.at(_state);
 	const auto i = table.find(a);
-	return (i!=table.end()); 
+	return (i!=table.end());
     }
 
     void do_entry_actions_bare() const
     {
 	if (has_entry_function_bare(_state))
-	    (*(_entry_actions.find(_state))).second();
+	    _entry_actions.at(_state)();
     }
 
     void do_exit_actions_bare() const
     {
 	if (has_exit_function_bare(_state))
-	    (*(_exit_actions.find(_state))).second();
+	    _exit_actions.at(_state)();
     }
 
     void action_bare(A a) const 
@@ -102,7 +102,7 @@ protected:
 
     S get_transition_bare(S os, A ac) const
     {
-	const auto& table = (*(_tt.find(os))).second;
+	const auto& table = _tt.at(os);
 	const auto i = table.find(ac);
 	if (i!=table.end())
 	    return (*i).second;
