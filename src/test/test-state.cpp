@@ -20,6 +20,13 @@ StateTestFixture::~StateTestFixture()
 void StateTestFixture::setUp()
 {
     pMachine = new state_machine<TestState,TestAction>();
+
+    pLoadedMachine = new state_machine<TestState,TestAction>();
+    pLoadedMachine->add_states(states);
+    pLoadedMachine->add_actions(actions);
+
+    pLoadedMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
+
 }
 
 void StateTestFixture::tearDown()
@@ -89,11 +96,8 @@ void StateTestFixture::testAddActions()
  */
 void StateTestFixture::testAddAndRetrieveTransition()
 {
-    pMachine->add_states(states);
-    pMachine->add_actions(actions);
-
-    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-    CPPUNIT_ASSERT( TestState::Running == pMachine->get_transition(TestState::Idle,TestAction::Start) );
+    CPPUNIT_ASSERT( TestState::Running ==
+		    pLoadedMachine->get_transition(TestState::Idle,TestAction::Start) );
 }
 
 /**
@@ -101,12 +105,7 @@ void StateTestFixture::testAddAndRetrieveTransition()
  */
 void StateTestFixture::testInvalidTransition()
 {
-    pMachine->add_states(states);
-    pMachine->add_actions(actions);
-
-    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-
-    CPPUNIT_ASSERT_THROW( pMachine->get_transition(TestState::Idle, TestAction::Stop),
+    CPPUNIT_ASSERT_THROW( pLoadedMachine->get_transition(TestState::Idle, TestAction::Stop),
 			  std::logic_error);
 }
 
@@ -115,23 +114,18 @@ void StateTestFixture::testInvalidTransition()
  */
 void StateTestFixture::testEntryExitActions()
 {
-    pMachine->add_states(states);
-    pMachine->add_actions(actions);
-
-    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-
-    pMachine->initialize(TestState::Idle);
+    pLoadedMachine->initialize(TestState::Idle);
 
     bool entryDone=false;
     bool exitDone=false;
     
-    pMachine->set_entry_function(TestState::Running, [&](){entryDone=true;} );
-    pMachine->set_exit_function(TestState::Idle, [&](){exitDone=true;} );
+    pLoadedMachine->set_entry_function(TestState::Running, [&](){entryDone=true;} );
+    pLoadedMachine->set_exit_function(TestState::Idle, [&](){exitDone=true;} );
 
     CPPUNIT_ASSERT( (!entryDone) && (!exitDone) );
-    pMachine->action(TestAction::Stop);
+    pLoadedMachine->action(TestAction::Stop);
     CPPUNIT_ASSERT( (!entryDone) && (!exitDone) );
-    pMachine->action(TestAction::Start);
+    pLoadedMachine->action(TestAction::Start);
     CPPUNIT_ASSERT( (entryDone) && (exitDone) );
     
 }
@@ -141,11 +135,7 @@ void StateTestFixture::testEntryExitActions()
  */
 void StateTestFixture::testWaitForStateEntry()
 {
-    pMachine->add_states(states);
-    pMachine->add_actions(actions);
-
-    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-    pMachine->initialize(TestState::Idle);
+    pLoadedMachine->initialize(TestState::Idle);
 
     // Set up a thread which waits for transition to the running state
     bool calledFlag{false};
@@ -153,15 +143,14 @@ void StateTestFixture::testWaitForStateEntry()
     std::thread t( [this,&calledFlag]()
 		   {
 		       //std::this_thread::sleep_for (std::chrono::seconds(1));
-		       this->pMachine->wait_for_state_entry(TestState::Running); 
+		       this->pLoadedMachine->wait_for_state_entry(TestState::Running);
 		       calledFlag=true; 
 		   } );
     
-    pMachine->action(TestAction::Start);
+    pLoadedMachine->action(TestAction::Start);
     t.join();
 
     CPPUNIT_ASSERT(calledFlag==true);
-
 }
 
 /**
@@ -169,24 +158,19 @@ void StateTestFixture::testWaitForStateEntry()
  */
 void StateTestFixture::testEntryFunction()
 {
-    pMachine->add_states(states);
-    pMachine->add_actions(actions);
-
-    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-    pMachine->initialize(TestState::Idle);
+    pLoadedMachine->initialize(TestState::Idle);
 
     bool functionCalled=false;
 
-    pMachine->set_entry_function(TestState::Running,
-				 [&]()
-				 {
-				     functionCalled=true;
-				 } );
+    pLoadedMachine->set_entry_function(TestState::Running,
+				       [&]()
+				       {
+					   functionCalled=true;
+				       } );
 
     CPPUNIT_ASSERT(!functionCalled);
-    pMachine->action(TestAction::Start);
+    pLoadedMachine->action(TestAction::Start);
     CPPUNIT_ASSERT(functionCalled);
-
 }
 
 /**
@@ -194,22 +178,18 @@ void StateTestFixture::testEntryFunction()
  */
 void StateTestFixture::testExitFunction()
 {
-    pMachine->add_states(states);
-    pMachine->add_actions(actions);
-
-    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-    pMachine->initialize(TestState::Idle);
+    pLoadedMachine->initialize(TestState::Idle);
 
     bool functionCalled=false;
 
-    pMachine->set_exit_function(TestState::Idle,
-				 [&]()
-				 {
-				     functionCalled=true;
-				 } );
+    pLoadedMachine->set_exit_function(TestState::Idle,
+				      [&]()
+				      {
+					  functionCalled=true;
+				      } );
 
     CPPUNIT_ASSERT(!functionCalled);
-    pMachine->action(TestAction::Start);
+    pLoadedMachine->action(TestAction::Start);
     CPPUNIT_ASSERT(functionCalled);
 
 }
@@ -219,21 +199,16 @@ void StateTestFixture::testExitFunction()
  */
 void StateTestFixture::testInitialize()
 {
-    pMachine->add_states(states);
-    pMachine->add_actions(actions);
-
-    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-
     bool functionCalled=false;
 
-    pMachine->set_entry_function(TestState::Idle,
-				 [&]()
-				 {
-				     functionCalled=true;
-				 } );
+    pLoadedMachine->set_entry_function(TestState::Idle,
+				       [&]()
+				       {
+					   functionCalled=true;
+				       } );
 
-    pMachine->initialize(TestState::Idle);
+    pLoadedMachine->initialize(TestState::Idle);
 
-    CPPUNIT_ASSERT(pMachine->get_state()==TestState::Idle);
+    CPPUNIT_ASSERT(pLoadedMachine->get_state()==TestState::Idle);
     CPPUNIT_ASSERT(functionCalled);
 }

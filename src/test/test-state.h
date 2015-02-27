@@ -59,6 +59,7 @@ public:
 
  protected:
     state_machine<TestState,TestAction>* pMachine{nullptr};
+    state_machine<TestState,TestAction>* pLoadedMachine{nullptr};
 };
 
 #endif
