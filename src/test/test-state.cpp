@@ -213,3 +213,27 @@ void StateTestFixture::testExitFunction()
     CPPUNIT_ASSERT(functionCalled);
 
 }
+
+/**
+ * Tests the initialization routine
+ */
+void StateTestFixture::testInitialize()
+{
+    pMachine->add_states(states);
+    pMachine->add_actions(actions);
+
+    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
+
+    bool functionCalled=false;
+
+    pMachine->set_entry_function(TestState::Idle,
+				 [&]()
+				 {
+				     functionCalled=true;
+				 } );
+
+    pMachine->initialize(TestState::Idle);
+
+    CPPUNIT_ASSERT(pMachine->get_state()==TestState::Idle);
+    CPPUNIT_ASSERT(functionCalled);
+}

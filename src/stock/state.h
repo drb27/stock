@@ -48,9 +48,9 @@ public:
 
     S get_transition(S os, A ac) const { LOCK; return get_transition_bare(os,ac); } 
 
-    void initialize(S initial) const { LOCK; _state=initial; }
+    void initialize(S initial) const { LOCK; _state=initial; do_entry_actions_bare(); }
 
-    void get_state() const { LOCK; return _state; }
+    S get_state() const { LOCK; return _state; }
 
     void action(A a) const { LOCK; LOCK2; action_bare(a); } 
 

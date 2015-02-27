@@ -37,6 +37,7 @@ public:
     void testWaitForStateEntry();
     void testEntryFunction();
     void testExitFunction();
+    void testInitialize();
     // @}
 
     /** \cond internal */
@@ -52,6 +53,7 @@ public:
     CPPUNIT_TEST( testWaitForStateEntry );
     CPPUNIT_TEST( testEntryFunction );
     CPPUNIT_TEST( testExitFunction );
+    CPPUNIT_TEST( testInitialize );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 
