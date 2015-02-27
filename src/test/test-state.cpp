@@ -1,3 +1,7 @@
+#include <thread>
+#include <exception>
+#include <stdexcept>
+
 #include "test-state.h"
 #include "../stock/state.h"
 
@@ -93,6 +97,20 @@ void StateTestFixture::testAddAndRetrieveTransition()
 }
 
 /**
+ * Tests exception on invalid transition
+ */
+void StateTestFixture::testInvalidTransition()
+{
+    pMachine->add_states(states);
+    pMachine->add_actions(actions);
+
+    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
+
+    CPPUNIT_ASSERT_THROW( pMachine->get_transition(TestState::Idle, TestAction::Stop),
+			  std::logic_error);
+}
+
+/**
  * Tests that transitions can be added and retrieved
  */
 void StateTestFixture::testEntryExitActions()
@@ -116,4 +134,32 @@ void StateTestFixture::testEntryExitActions()
     pMachine->action(TestAction::Start);
     CPPUNIT_ASSERT( (entryDone) && (exitDone) );
     
+}
+
+/**
+ * Tests blocking waiting for state entry
+ */
+void StateTestFixture::testWaitForStateEntry()
+{
+    pMachine->add_states(states);
+    pMachine->add_actions(actions);
+
+    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
+    pMachine->initialize(TestState::Idle);
+
+    // Set up a thread which waits for transition to the running state
+    bool calledFlag{false};
+    
+    std::thread t( [this,&calledFlag]()
+		   {
+		       //std::this_thread::sleep_for (std::chrono::seconds(1));
+		       this->pMachine->wait_for_state_entry(TestState::Running); 
+		       calledFlag=true; 
+		   } );
+    
+    pMachine->action(TestAction::Start);
+    t.join();
+
+    CPPUNIT_ASSERT(calledFlag==true);
+
 }

@@ -2,6 +2,7 @@
 #define STATE_H
 
 #include <type_traits>
+#include <condition_variable>
 #include <mutex>
 #include <set>
 #include <map>
@@ -11,6 +12,7 @@
 #include <functional>
 
 #define LOCK std::lock_guard<std::mutex>(this->_mutex)
+#define LOCK2 std::lock_guard<std::mutex>(this->_statechange_mutex)
 
 /**
  * A thread-safe state machine implementation, with a dynamic definition which
@@ -50,10 +52,37 @@ public:
 
     void get_state() const { LOCK; return _state; }
 
-    void action(A a) const { LOCK; action_bare(a); } 
+    void action(A a) const { LOCK; LOCK2; action_bare(a); } 
 
     void set_entry_function(S s, std::function<void()> f) { LOCK; set_entry_function_bare(s,f); }
     void set_exit_function(S s, std::function<void()> f)  { LOCK; set_exit_function_bare(s,f); }
+
+    void wait_for_state_entry(S s) const
+    {
+	std::unique_lock<std::mutex> main_lock(_mutex);
+	std::unique_lock<std::mutex> event_lock(_statechange_mutex);
+	event_lock.release();
+
+	if (_state==s)
+	{
+	    // We're already done. Release the main mutex and return.
+	    main_lock.release();
+	    return;
+	}
+	
+	// Now lock the statechange lock and release the main lock. Another thread
+	// must own both in order to change the state.
+	event_lock.lock();
+	main_lock.release();
+
+	bool achievedState=false;
+	while(!achievedState)
+	{
+	    _state_change.wait(event_lock);
+	    if (_state==s)
+		achievedState=true;
+	}
+    }
 
 protected:
 
@@ -86,7 +115,7 @@ protected:
 	    _state = newState;
 	    do_entry_actions_bare();
 
-	    
+	    _state_change.notify_all();
 	}
     }
 
@@ -140,28 +169,17 @@ protected:
 	return _exit_actions.find(s)!=_exit_actions.end();
     }
 
-    void wait_for_state_entry(S s) const
-    {
-	std::unique_lock<std::mutex> lock(_mutex);
-	bool achievedState=false;
-
-	while(!achievedState)
-	{
-	    _state_change.wait(lock);
-	    if (_state==s)
-		achievedState=true;
-	}
-    }
 
 private:
     mutable std::mutex _mutex;
+    mutable std::mutex _statechange_mutex;
     std::set<S> _states;
     std::set<A> _actions;
     transition_table _tt;
     mutable S _state;
     function_table _entry_actions;
     function_table _exit_actions;
-    std::condition_variable _state_change;
+    mutable std::condition_variable _state_change;
 
 };
 

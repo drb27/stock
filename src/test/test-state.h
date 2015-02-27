@@ -32,7 +32,9 @@ public:
     void testAddAction();
     void testAddActions();
     void testAddAndRetrieveTransition();
+    void testInvalidTransition();
     void testEntryExitActions();
+    void testWaitForStateEntry();
     // @}
 
     /** \cond internal */
@@ -43,7 +45,9 @@ public:
     CPPUNIT_TEST( testAddAction );
     CPPUNIT_TEST( testAddActions );
     CPPUNIT_TEST( testAddAndRetrieveTransition );
+    CPPUNIT_TEST( testInvalidTransition );
     CPPUNIT_TEST( testEntryExitActions );
+    CPPUNIT_TEST( testWaitForStateEntry );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 
