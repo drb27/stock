@@ -163,3 +163,53 @@ void StateTestFixture::testWaitForStateEntry()
     CPPUNIT_ASSERT(calledFlag==true);
 
 }
+
+/**
+ * Tests entry functions
+ */
+void StateTestFixture::testEntryFunction()
+{
+    pMachine->add_states(states);
+    pMachine->add_actions(actions);
+
+    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
+    pMachine->initialize(TestState::Idle);
+
+    bool functionCalled=false;
+
+    pMachine->set_entry_function(TestState::Running,
+				 [&]()
+				 {
+				     functionCalled=true;
+				 } );
+
+    CPPUNIT_ASSERT(!functionCalled);
+    pMachine->action(TestAction::Start);
+    CPPUNIT_ASSERT(functionCalled);
+
+}
+
+/**
+ * Tests exit functions
+ */
+void StateTestFixture::testExitFunction()
+{
+    pMachine->add_states(states);
+    pMachine->add_actions(actions);
+
+    pMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
+    pMachine->initialize(TestState::Idle);
+
+    bool functionCalled=false;
+
+    pMachine->set_exit_function(TestState::Idle,
+				 [&]()
+				 {
+				     functionCalled=true;
+				 } );
+
+    CPPUNIT_ASSERT(!functionCalled);
+    pMachine->action(TestAction::Start);
+    CPPUNIT_ASSERT(functionCalled);
+
+}

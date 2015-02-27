@@ -35,6 +35,8 @@ public:
     void testInvalidTransition();
     void testEntryExitActions();
     void testWaitForStateEntry();
+    void testEntryFunction();
+    void testExitFunction();
     // @}
 
     /** \cond internal */
@@ -48,6 +50,8 @@ public:
     CPPUNIT_TEST( testInvalidTransition );
     CPPUNIT_TEST( testEntryExitActions );
     CPPUNIT_TEST( testWaitForStateEntry );
+    CPPUNIT_TEST( testEntryFunction );
+    CPPUNIT_TEST( testExitFunction );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 
