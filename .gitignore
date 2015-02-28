@@ -28,9 +28,9 @@
 *.exe
 *.out
 *.app
-stock
-stock_tests
-stockgui
+/stock
+/stock_tests
+/stockgui
 
 #Distributions
 *.tar
@@ -71,3 +71,8 @@ docs/man
 docs/Doxyfile
 docs/doxyfile.stamp
 autoscan.log
+
+#Others
+/src/stockgui/.dirstamp
+/src/stockgui/resources.c
+/src/stockgui/window.ui

@@ -22,7 +22,11 @@ libstock_a_SOURCES= \
 	src/stock/stock_fetcher.h \
 	src/stock/sweepup.h \
 	src/stock/worker_base.h \
-	src/stock/state.h 
+	src/stock/state.h \
+	src/stock/task.cpp \
+	src/stock/task.h \
+	src/stock/i_worker.h \
+	src/stock/i_resultor.h
 
 TESTS=stock_tests
 check_PROGRAMS=stock_tests
