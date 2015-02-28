@@ -19,6 +19,13 @@ class i_resultor
     static_assert(std::is_enum<R>::value,"i_resultor can only be used with enumerations");
 
 public:
+
+    /**
+     * Default constructor. Allows child classes to specify a default value for the
+     * result.
+     */
+    i_resultor( const R& initial = R() ) : _result(initial) {} 
+
     /**
      * Returns a reference to the current result, if available. 
      * If not available, std::logic_error is thrown.
@@ -49,12 +56,6 @@ public:
 	return _ready;
     }
     
-    /**
-     * Returns a reference to the current exception.
-     * Typically only useful if the result code indicates a failure
-     */
-    const std::exception& error() const { return _exception; }
-
 protected:
 
     /**

@@ -5,6 +5,7 @@
 #include <exception>
 #include <thread>
 
+#include "i_resultor.h"
 #include "i_worker.h"
 #include "problem.h"
 #include "state.h"
@@ -22,37 +23,41 @@ public:
     {
 	NotPerformed,
 	    InProgress,
-	    Succeeded,
-	    Failed
-    };
+	    Finished
+	    };
 
     enum class TaskAction
     {
 	Begin,
-	    TerminateSuccessfully,
-	    Abort
-	    };
-
+	    Abort,
+	    Finish,
+	    Reset
+    };
+    
     task( problem<Ti,To>& p) : _problem(p) 
     {
 	// Add states and actions
-	state.add_states( { TaskState::NotPerformed, TaskState::InProgress,
-		    TaskState::Succeeded, TaskState::Failed } );
+	state.add_states( { TaskState::NotPerformed, 
+		    TaskState::InProgress,
+		    TaskState::Finished } );
 
-	state.add_actions( { TaskAction::Begin, TaskAction::TerminateSuccessfully, 
-		    TaskAction::Abort } );
+	state.add_actions( { TaskAction::Begin,
+		    TaskAction::Abort,
+		    TaskAction::Finish,
+		    TaskAction::Reset } );
     
 	// Add transitions
-	state.add_transition( TaskState::NotPerformed, TaskAction::Begin, TaskState::InProgress );
-	state.add_transition( TaskState::NotPerformed, TaskAction::Abort, TaskState::Failed );
-	
-	state.add_transition( TaskState::InProgress, TaskAction::TerminateSuccessfully, 
-			      TaskState::Succeeded );
+	state.add_transition( TaskState::NotPerformed, 
+			      TaskAction::Begin, TaskState::InProgress );
 
-	state.add_transition( TaskState::InProgress, TaskAction::Abort, TaskState::Failed );
+	state.add_transition( TaskState::InProgress, 
+			      TaskAction::Abort, TaskState::NotPerformed );
 
+	state.add_transition( TaskState::InProgress, 
+			      TaskAction::Finish, TaskState::Finished );
 
-	// Add entry/exit actions
+	state.add_transition( TaskState::Finished, 
+			      TaskAction::Reset, TaskState::NotPerformed );
 
 	// Set the initial state
 	state.initialize(TaskState::NotPerformed);
@@ -63,26 +68,31 @@ public:
     
     virtual WorkResult perform_sync()
     {
-	return WorkResult::Failure;
+	state.action(TaskAction::Begin);
+	
+	try
+	{
+	    _problem();
+	    i_worker<To>::set_result(WorkResult::Success);	
+	}
+	catch ( const std::exception& e )
+	{
+	    i_worker<To>::set_result(WorkResult::Failure,e);
+	}
+
+	state.action(TaskAction::Finish);
+	return i_worker<To>::result();
     }
 
     virtual void perform_async()
     {
     }
 
-    virtual bool is_complete() const
-    {
-	return state.get_state()==TaskState::Succeeded;
-    }
-
-    virtual To& retrieve() const
-    {
-	return *_output;
-    }
-
     virtual WorkResult wait() const
     {
-	return WorkResult::Failure;
+	i_worker<To>::set_result(WorkResult::Failure);
+	state.action(TaskAction::Finish);
+	return i_worker<To>::result();
     } 
     
 

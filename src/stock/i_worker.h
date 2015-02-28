@@ -5,7 +5,7 @@
 
 enum class WorkResult
 {
-    NotPerformed=0,
+    Unknown=0,
 	Success,
 	Failure
 	};
@@ -19,6 +19,11 @@ class i_worker : public i_resultor<WorkResult>
 {
     
 public:
+
+    /**
+     * Default constructor. 
+     */
+    i_worker() : i_resultor(WorkResult::Unknown) {}
     
     /**
      * Performs the work synchronously, and returns a result code when done.
@@ -31,17 +36,6 @@ public:
      * thread until the result is available. 
      */ 
     virtual void perform_async() =0;
-
-    /** 
-     * True if the work was completed successfully, and a result code is available
-     */
-    virtual bool is_complete() const =0;
-
-    /**
-     * Retrieves the output of the work.
-     * Throws std::logic_error if the result of the work is not yet available.  
-     */
-    virtual T& retrieve() const =0;
 
     /**
      * Waits for the work to complete, and returns the result code.
