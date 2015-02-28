@@ -38,6 +38,7 @@ public:
     void testEntryFunction();
     void testExitFunction();
     void testInitialize();
+    void testHoldExplicitLock();
     // @}
 
     /** \cond internal */
@@ -54,6 +55,7 @@ public:
     CPPUNIT_TEST( testEntryFunction );
     CPPUNIT_TEST( testExitFunction );
     CPPUNIT_TEST( testInitialize );
+    CPPUNIT_TEST( testHoldExplicitLock );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 

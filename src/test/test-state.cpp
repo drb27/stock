@@ -26,7 +26,7 @@ void StateTestFixture::setUp()
     pLoadedMachine->add_actions(actions);
 
     pLoadedMachine->add_transition(TestState::Idle, TestAction::Start, TestState::Running);
-
+    pLoadedMachine->add_transition(TestState::Running, TestAction::Stop, TestState::Died);
 }
 
 void StateTestFixture::tearDown()
@@ -211,4 +211,37 @@ void StateTestFixture::testInitialize()
 
     CPPUNIT_ASSERT(pLoadedMachine->get_state()==TestState::Idle);
     CPPUNIT_ASSERT(functionCalled);
+}
+
+/**
+ * Tests that holding an explicit lock does not cause deadlocks.
+ */
+void StateTestFixture::testHoldExplicitLock()
+{
+    pLoadedMachine->initialize(TestState::Idle);
+    std::unique_lock<std::recursive_mutex> lock = pLoadedMachine->obtain_lock();
+
+    // Start a new thread, which attempts to issue the Stop action
+    std::thread t( [this]()
+		   {
+		       this->pLoadedMachine->action(TestAction::Stop);
+		   } );
+
+    pLoadedMachine->action( TestAction::Start );
+    
+    CPPUNIT_ASSERT( pLoadedMachine->get_state()==TestState::Running );
+    
+    // Sleep a little while, then check again
+    std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+
+    CPPUNIT_ASSERT( pLoadedMachine->get_state()==TestState::Running );
+
+    // Release the explicit lock, the second thread should now have access, and 
+    // complete its transition
+    lock.unlock();
+
+    pLoadedMachine->wait_for_state_entry( TestState::Died );
+    t.join();
+
+    CPPUNIT_ASSERT( pLoadedMachine->get_state()==TestState::Died );
 }

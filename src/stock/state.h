@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <functional>
 
-#define LOCK std::lock_guard<std::mutex>(this->_mutex)
+#define LOCK std::lock_guard<std::recursive_mutex>(this->_mutex)
 #define LOCK2 std::lock_guard<std::mutex>(this->_statechange_mutex)
 
 /**
@@ -57,23 +57,30 @@ public:
     void set_entry_function(S s, std::function<void()> f) { LOCK; set_entry_function_bare(s,f); }
     void set_exit_function(S s, std::function<void()> f)  { LOCK; set_exit_function_bare(s,f); }
 
+    std::unique_lock<std::recursive_mutex> obtain_lock() const
+    {
+	// Returns a lock which already locks the mutex. When the object goes out
+	// of scope in the caller's context, the lock is released. 
+	return std::unique_lock<std::recursive_mutex>(_mutex);
+    }
+
     void wait_for_state_entry(S s) const
     {
-	std::unique_lock<std::mutex> main_lock(_mutex);
+	std::unique_lock<std::recursive_mutex> main_lock(_mutex);
 	std::unique_lock<std::mutex> event_lock(_statechange_mutex);
-	event_lock.release();
+	event_lock.unlock();
 
 	if (_state==s)
 	{
 	    // We're already done. Release the main mutex and return.
-	    main_lock.release();
+	    main_lock.unlock();
 	    return;
 	}
 	
 	// Now lock the statechange lock and release the main lock. Another thread
 	// must own both in order to change the state.
 	event_lock.lock();
-	main_lock.release();
+	main_lock.unlock();
 
 	bool achievedState=false;
 	while(!achievedState)
@@ -171,7 +178,7 @@ protected:
 
 
 private:
-    mutable std::mutex _mutex;
+    mutable std::recursive_mutex _mutex;
     mutable std::mutex _statechange_mutex;
     std::set<S> _states;
     std::set<A> _actions;
