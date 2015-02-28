@@ -40,7 +40,12 @@ stock_tests_SOURCES = src/test/main.cpp \
 	src/stock/problem.h \
 	src/test/test-state.cpp \
 	src/test/test-state.h \
-	src/stock/state.h
+	src/stock/state.h \
+	src/test/test-task.h \
+	src/test/test-task.cpp \
+	src/stock/task.h \
+	src/stock/i_worker.h \
+	src/stock\i_resultor.h
 
 stock_tests_CXXFLAGS=-O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 

@@ -33,6 +33,9 @@ void StateTestFixture::tearDown()
 {
     delete pMachine;
     pMachine = nullptr;
+
+    delete pLoadedMachine;
+    pLoadedMachine = nullptr;
 }
 
 /**
@@ -101,12 +104,22 @@ void StateTestFixture::testAddAndRetrieveTransition()
 }
 
 /**
- * Tests exception on invalid transition
+ * Tests exception on queried invalid transition
  */
 void StateTestFixture::testInvalidTransition()
 {
     CPPUNIT_ASSERT_THROW( pLoadedMachine->get_transition(TestState::Idle, TestAction::Stop),
 			  std::logic_error);
+}
+
+/**
+ * Tests exception on actioned invalid transition
+ */
+void StateTestFixture::testInvalidTransitionRequested()
+{
+    pLoadedMachine->initialize(TestState::Idle);
+    CPPUNIT_ASSERT_THROW( pLoadedMachine->action(TestAction::Stop),
+    			  std::logic_error);
 }
 
 /**
@@ -120,12 +133,12 @@ void StateTestFixture::testEntryExitActions()
     bool exitDone=false;
     
     pLoadedMachine->set_entry_function(TestState::Running, [&](){entryDone=true;} );
-    pLoadedMachine->set_exit_function(TestState::Idle, [&](){exitDone=true;} );
+    pLoadedMachine->set_exit_function(TestState::Running, [&](){exitDone=true;} );
 
     CPPUNIT_ASSERT( (!entryDone) && (!exitDone) );
-    pLoadedMachine->action(TestAction::Stop);
-    CPPUNIT_ASSERT( (!entryDone) && (!exitDone) );
     pLoadedMachine->action(TestAction::Start);
+    CPPUNIT_ASSERT( (entryDone) && (!exitDone) );
+    pLoadedMachine->action(TestAction::Stop);
     CPPUNIT_ASSERT( (entryDone) && (exitDone) );
     
 }

@@ -10,10 +10,13 @@
 #include "test-buffer.h"
 #include "test-problem.h"
 #include "test-state.h"
+#include "test-task.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(BufferTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(ProblemTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(StateTestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(TaskTestFixture);
+
 
 int main(int argc, char* argv[] )
 {

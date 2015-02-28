@@ -33,6 +33,7 @@ public:
     void testAddActions();
     void testAddAndRetrieveTransition();
     void testInvalidTransition();
+    void testInvalidTransitionRequested();
     void testEntryExitActions();
     void testWaitForStateEntry();
     void testEntryFunction();
@@ -50,6 +51,7 @@ public:
     CPPUNIT_TEST( testAddActions );
     CPPUNIT_TEST( testAddAndRetrieveTransition );
     CPPUNIT_TEST( testInvalidTransition );
+    CPPUNIT_TEST( testInvalidTransitionRequested );
     CPPUNIT_TEST( testEntryExitActions );
     CPPUNIT_TEST( testWaitForStateEntry );
     CPPUNIT_TEST( testEntryFunction );

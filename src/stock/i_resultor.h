@@ -91,6 +91,13 @@ protected:
 	set_result(r);
     }
 
+    void reset_result(const R& initial)
+    {
+	_exception = std::exception();
+	_result = initial;
+	_ready = false;
+    }
+
 private:
     bool _ready{false};
     R _result ={R()};

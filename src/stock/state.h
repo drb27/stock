@@ -57,6 +57,8 @@ public:
     void set_entry_function(S s, std::function<void()> f) { LOCK; set_entry_function_bare(s,f); }
     void set_exit_function(S s, std::function<void()> f)  { LOCK; set_exit_function_bare(s,f); }
 
+    void ensure_state(S s) const { LOCK; if (s!=_state) throw std::logic_error(); }
+
     std::unique_lock<std::recursive_mutex> obtain_lock() const
     {
 	// Returns a lock which already locks the mutex. When the object goes out
@@ -119,11 +121,13 @@ protected:
 	    S newState = get_transition_bare(_state,a);
 	    
 	    do_exit_actions_bare();
-	    _state = newState;
+	     _state = newState;
 	    do_entry_actions_bare();
 
-	    _state_change.notify_all();
+	     _state_change.notify_all();
 	}
+	else
+	    throw std::logic_error("Invalid action for current state");
     }
 
     void add_state_bare(S s)  

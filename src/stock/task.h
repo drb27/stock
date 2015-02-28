@@ -4,6 +4,8 @@
 #include <functional>
 #include <exception>
 #include <thread>
+#include <mutex>
+#include <memory>
 
 #include "i_resultor.h"
 #include "i_worker.h"
@@ -68,11 +70,57 @@ public:
     
     virtual WorkResult perform_sync()
     {
+	std::lock_guard<std::mutex> guard(_mutex);
 	state.action(TaskAction::Begin);
 	
+	perform();
+
+	return i_worker<To>::result();
+    }
+
+    virtual void perform_async()
+    {
+	std::lock_guard<std::mutex> guard(_mutex);
+	state.action(TaskAction::Begin);
+
+	std::thread t( [this]()
+		       {
+			   this->perform();
+		       } );
+	
+	t.detach();
+	
+    }
+
+    virtual WorkResult wait() const
+    {
+	state.wait_for_state_entry(TaskState::Finished);
+	return i_worker<To>::result();
+    } 
+
+
+    ///@}
+
+    virtual void reset()
+    {
+	std::lock_guard<std::mutex> guard(_mutex);
+	i_resultor<WorkResult>::reset_result(WorkResult::Unknown);
+	state.action(TaskAction::Reset);
+    }
+
+    virtual To output() const
+    {
+	std::lock_guard<std::mutex> guard(_mutex);
+	return *_output;
+    }
+
+private:
+
+    virtual void perform() final
+    {
 	try
 	{
-	    _problem();
+	    _output = std::unique_ptr<To>(new To(_problem() ));
 	    i_worker<To>::set_result(WorkResult::Success);	
 	}
 	catch ( const std::exception& e )
@@ -80,27 +128,14 @@ public:
 	    i_worker<To>::set_result(WorkResult::Failure,e);
 	}
 
-	state.action(TaskAction::Finish);
-	return i_worker<To>::result();
+	state.action(TaskAction::Finish);	
     }
-
-    virtual void perform_async()
-    {
-    }
-
-    virtual WorkResult wait() const
-    {
-	i_worker<To>::set_result(WorkResult::Failure);
-	state.action(TaskAction::Finish);
-	return i_worker<To>::result();
-    } 
-    
-
-    ///@}
 
 protected:
+
+    mutable std::mutex _mutex;
     const problem<Ti,To>  _problem;
-    To* _output = nullptr;
+    std::unique_ptr<To> _output = nullptr;
     state_machine<TaskState,TaskAction> state;
 }; 
 
