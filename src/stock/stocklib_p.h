@@ -37,4 +37,7 @@ typedef stock_task* SLHANDLE;
 
 #include "stocklib.h"
 
+extern void stocklib_p_test_mode();
+extern int  stocklib_p_open_handles();
+
 #endif

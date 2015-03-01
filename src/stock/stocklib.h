@@ -70,7 +70,10 @@ extern "C" {
      *
      * @note No cleanup call is required, but all calls to 
      * stocklib_fetch_asynch() should be balanced with calls to
-     * stocklib_asynch_dispose() to avoid memory leaks.  
+     * stocklib_asynch_dispose() to avoid memory leaks.
+     *
+     * @warning You MUST initialize the curl library with a call to
+     * curl_global_init() before using the stocklib library!  
      */
     extern void stocklib_init();
 

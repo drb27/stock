@@ -33,7 +33,7 @@ SOFTWARE.
 #include "task.h"
 
 
-class stock_task : public task<const std::string&,std::string>
+class stock_task : public task<const std::string,std::string>
 {
 public:
     stock_task();

@@ -1,5 +1,5 @@
 /**
- * @file main.cpp
+ * @file 
  *
  * This is where all the magic happens
  */
@@ -35,10 +35,6 @@ SOFTWARE.
 #include <list>
 
 #include <curl/curl.h>
-#include "problem.h"
-#include "worker_base.h"
-#include "stock_fetcher.h"
-
 #include "stocklib.h"
 
 using std::cout;
@@ -58,27 +54,16 @@ int main( int argc, char* argv[] )
 
     /* Initialise the CURL library */
     curl_global_init(CURL_GLOBAL_ALL);
-    
-    /* Create n threads, add to join list */
-    list<thread> threadset;
-    
-    /* Create a stock fetcher thread */
-    stock_fetcher s;
 
-    s.set_result_callback( [](string s)
-			   {
-			       cout << s << endl;
-			   }
-			  );
+    /* Initialise the stocklib library */
+    stocklib_init();
 
-    thread t(s,99);
-    threadset.push_back(std::move(t));
-    
-    /* Wait for all threads to complete */
-    for ( auto& t : threadset )
-    {
-	t.join();
-    }
+    /* Fetch a result */
+    char buffer[SL_MAX_BUFFER];
+    stocklib_fetch_synch(g_ticker.c_str(),buffer);
+
+    /* Output the result */
+    cout << buffer << endl;
 
     /* Done! */
     return 0;
