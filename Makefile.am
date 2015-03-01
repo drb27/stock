@@ -15,13 +15,9 @@ libstock_a_SOURCES= \
 	src/stock/problem.h \
 	src/stock/buffer.cpp \
 	src/stock/deathrattle.cpp \
-	src/stock/stock_fetcher.cpp \
-	src/stock/worker_base.cpp \
 	src/stock/buffer.h \
 	src/stock/deathrattle.h \
-	src/stock/stock_fetcher.h \
 	src/stock/sweepup.h \
-	src/stock/worker_base.h \
 	src/stock/state.h \
 	src/stock/task.cpp \
 	src/stock/task.h \

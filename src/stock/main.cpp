@@ -45,7 +45,10 @@ using std::cout;
 using std::endl;
 using std::string;
 
-string g_ticker="AAPL";
+namespace
+{
+    string g_ticker="AAPL";
+}
 
 int main( int argc, char* argv[] )
 {

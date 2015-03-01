@@ -11,9 +11,10 @@
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
+#include <stocklib.h>
 
-#include <worker_base.h>
-#include <stock_fetcher.h>
+using std::string;
+using std::thread;
 
 /// The stock fetcher thread takes its input from here. 
 std::string g_ticker = "AAPL";
@@ -26,7 +27,6 @@ std::string g_result = "";
 #define QUOTE(X) Q(X)
 const std::string g_buildstamp = QUOTE(BUILDSTAMP);
 
-using std::thread;
 
 /** 
  * Structure to contain pointers to widgets of interest. 
@@ -60,15 +60,6 @@ void on_window_destroy()
 }
 
 /**
- * Callback invoked when the stock thread is finished 
- */
-gboolean on_fetch_complete(gpointer pdata)
-{
-    gtk_widget_set_sensitive(controls.gobutton,true);
-    return FALSE;
-}
-
-/**
  * Callback invoked when the About menu option is selected
  */
 gboolean on_menu_about(gpointer pdata)
@@ -87,6 +78,8 @@ gboolean on_menu_about(gpointer pdata)
 gboolean on_got_result(gpointer pdata)
 {
     gtk_entry_set_text(controls.lasttradeprice,g_result.c_str());
+    gtk_widget_set_sensitive(controls.gobutton,true);
+    return FALSE;
 }
 
 /**
@@ -112,19 +105,21 @@ void on_button_clicked()
     // Get the ticker text, and store in g_ticker
     g_ticker = gtk_entry_get_text(controls.ticker);
 
-    // Initiate a worker thread to fetch the stock details
-    stock_fetcher s;
-    s.set_completion_action( []()
-			     { 
-				 g_main_context_invoke(NULL,on_fetch_complete,nullptr); 
-			     });
-    
-    s.set_result_callback( [](std::string s)
-			   {
-			       g_result = s;
-			       g_main_context_invoke(NULL,on_got_result,nullptr); 
-			   } );
-    thread t(s,99);
+    thread t( [&]()
+	      {
+		  char buffer[SL_MAX_BUFFER];
+		  if ( SL_OK != stocklib_fetch_synch( g_ticker.c_str(), buffer ) )
+		  {
+		      g_result = "[ERROR]";
+		  }
+		  else
+		  {
+		      g_result=string(buffer);
+		  }
+
+		  g_main_context_invoke(NULL,on_got_result,nullptr);
+	      } );
+
     t.detach();
 }
 
@@ -146,6 +141,9 @@ int main(int argc, char* argv[])
 
     /* Initialize CURL library */
     curl_global_init(CURL_GLOBAL_ALL);
+
+    /* Initialize the stocklib library */
+    stocklib_init();
 
     /* Contruct the UI from the compiled-in resource data */
     GError *error=nullptr;
