@@ -143,8 +143,8 @@ public:
     virtual void reset()
     {
 	std::lock_guard<std::mutex> guard(_mutex);
-	i_resultor<WorkResult,extype>::reset_result(WorkResult::Unknown);
 	state.action(TaskAction::Reset);
+	i_resultor<WorkResult,extype>::reset_result(WorkResult::Unknown);
     }
 
     virtual To output() const
