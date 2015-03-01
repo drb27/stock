@@ -31,6 +31,9 @@ SOFTWARE.
 #ifndef STOCKLIB_H
 #define STOCKLIB_H
 
+#include <config.h>
+typedef char BOOL;
+
 /**
  * The maximum number of bytes ever writen to a program buffer
  */
@@ -52,11 +55,13 @@ typedef enum
 extern "C" {
 #endif
 
+#ifndef SL_HAS_PRIVATE
     /**
      * Partial opaque type for communicating between the library and the
      * program.
      */
     typedef void *SLHANDLE;
+#endif
 
 
     /**
@@ -67,7 +72,7 @@ extern "C" {
      * stocklib_fetch_asynch() should be balanced with calls to
      * stocklib_asynch_dispose() to avoid memory leaks.  
      */
-    extern stocklib_init();
+    extern void stocklib_init();
 
 
     /**

@@ -29,7 +29,8 @@ libstock_a_SOURCES= \
 	src/stock/i_resultor.h \
 	src/stock/stock-task.h \
 	src/stock/stock-task.cpp \
-	src/stock/stocklib.h
+	src/stock/stocklib.h \
+	src/stock/stocklib_p.h
 
 TESTS=stock_tests
 check_PROGRAMS=stock_tests
@@ -51,7 +52,8 @@ stock_tests_SOURCES = src/test/main.cpp \
 	src/stock/i_resultor.h \
 	src/stock/stock-task.h \
 	src/stock/stock-task.cpp \
-	src/stock/stocklib.h
+	src/stock/stocklib.h \
+	src/stock/stocklib_p.h
 
 stock_tests_CXXFLAGS=-O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 
