@@ -65,12 +65,17 @@ public:
     {
     public:
 	
-	abort_exception() : std::logic_error("An unknown error occurred while solving a problem") 
+	explicit abort_exception() : std::logic_error("An unknown error occurred while solving a problem") 
 	{
 	}
+
+	explicit abort_exception(const std::string& s) : std::logic_error(s)
+	{
+	} 
 	
-	abort_exception(const std::exception& e) : std::logic_error("An error occurred while solving a problem"),
-						   _inner(e)
+	explicit abort_exception(const std::exception& e) 
+	    : std::logic_error("An error occurred while solving a problem"),
+	      _inner(e)
 	{
 	}
 

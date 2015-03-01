@@ -162,10 +162,14 @@ private:
 	    _output = std::unique_ptr<To>(new To(_problem() ));
 	    i_worker<To,extype>::set_result(WorkResult::Success);	
 	}
+	catch ( const extype& e )
+	{
+	    i_worker<To,extype>::set_result(WorkResult::Failure,e);
+	}
 	catch ( const std::exception& e )
 	{
-	    std::cout << "Caught exception!" << e.what() << std::endl;
-	    i_worker<To,extype>::set_result(WorkResult::Failure,e);
+	    i_worker<To,extype>::set_result(WorkResult::Failure,
+					    extype("Unexpected exception thrown from problem execution"));
 	}
 
 	state.action(TaskAction::Finish);	
