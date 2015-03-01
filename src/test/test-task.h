@@ -30,6 +30,8 @@ public:
     void testPerformASyncSuccess();
     void testPerformAsyncThenTryAgain();
     void testReset();
+    void testPerformSyncFailure();
+    void testPerformAsyncFailure();
     // @}
 
     /** \cond internal */
@@ -39,12 +41,15 @@ public:
     CPPUNIT_TEST( testPerformASyncSuccess );
     CPPUNIT_TEST( testPerformAsyncThenTryAgain );
     CPPUNIT_TEST( testReset );
+    CPPUNIT_TEST( testPerformSyncFailure );
+    CPPUNIT_TEST( testPerformAsyncFailure );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 
 private:
 
     std::unique_ptr<task<long,long>> _task;
+    std::unique_ptr<task<long,long>> _buggy_task;
 };
 
 #endif

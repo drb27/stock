@@ -9,11 +9,12 @@
  * The result type is parameterized.
  * 
  * @param R The type of the result to be returned.
+ * @param E The exception type to use
  *
  * @note The default value of the result immediately after construction is zero,
  *       regardless of whether or not this is a valid  
  */
-template<class R>
+template<class R,class E>
 class i_resultor
 {
     static_assert(std::is_enum<R>::value,"i_resultor can only be used with enumerations");
@@ -42,7 +43,7 @@ public:
      * Gets the current exception
      * @return a const reference to the current exception object. 
      */
-    const std::exception& exception() const
+    const E& exception() const
     {
 	return _exception;
     }
@@ -85,7 +86,7 @@ protected:
      * @param r The result to store (a copy is made)
      * @param e The exception to store (a copy is made)
      */
-    void set_result( const R& r, const std::exception& e )
+    void set_result( const R& r, const E& e )
     {
 	_exception = e;
 	set_result(r);
@@ -93,15 +94,15 @@ protected:
 
     void reset_result(const R& initial)
     {
-	_exception = std::exception();
+	_exception = E();
 	_result = initial;
 	_ready = false;
     }
 
 private:
     bool _ready{false};
-    R _result ={R()};
-    std::exception _exception = std::exception();
+    R _result{R()};
+    E _exception{E()};
     
 };
 

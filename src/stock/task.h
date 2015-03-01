@@ -1,6 +1,7 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <iostream>
 #include <functional>
 #include <exception>
 #include <thread>
@@ -12,28 +13,38 @@
 #include "problem.h"
 #include "state.h"
 
+
+
 /** 
  * A class which performs a task, either synchronously or
  * asynchronously.
  */
 template<class Ti, class To>
-class task : public i_worker<To>
+class task : public i_worker<To,typename ::problem<Ti,To>::abort_exception>
 {
 public:
-
+    
+    typedef typename problem<Ti,To>::abort_exception extype;
+    
+    /**
+     * Possible states that a task object can be in.
+     */
     enum class TaskState
     {
-	NotPerformed,
-	    InProgress,
-	    Finished
+	NotPerformed,		///< The task pending / ready to run
+	    InProgress,		///< The task is running
+	    Finished		///< The task has finished, a result code is available
 	    };
 
+    /**
+     * Possible actions on the internal state machine
+     */
     enum class TaskAction
     {
-	Begin,
-	    Abort,
-	    Finish,
-	    Reset
+	Begin,			///< Start the task
+	    Abort,		///< Abort a running task
+	    Finish,		///< Complete a task
+	    Reset		///< Prepare the object for re-use
     };
     
     task( problem<Ti,To>& p) : _problem(p) 
@@ -75,7 +86,7 @@ public:
 	
 	perform();
 
-	return i_worker<To>::result();
+	return i_worker<To,extype>::result();
     }
 
     virtual void perform_async()
@@ -95,7 +106,7 @@ public:
     virtual WorkResult wait() const
     {
 	state.wait_for_state_entry(TaskState::Finished);
-	return i_worker<To>::result();
+	return i_worker<To,extype>::result();
     } 
 
 
@@ -104,7 +115,7 @@ public:
     virtual void reset()
     {
 	std::lock_guard<std::mutex> guard(_mutex);
-	i_resultor<WorkResult>::reset_result(WorkResult::Unknown);
+	i_resultor<WorkResult,extype>::reset_result(WorkResult::Unknown);
 	state.action(TaskAction::Reset);
     }
 
@@ -121,11 +132,12 @@ private:
 	try
 	{
 	    _output = std::unique_ptr<To>(new To(_problem() ));
-	    i_worker<To>::set_result(WorkResult::Success);	
+	    i_worker<To,extype>::set_result(WorkResult::Success);	
 	}
 	catch ( const std::exception& e )
 	{
-	    i_worker<To>::set_result(WorkResult::Failure,e);
+	    std::cout << "Caught exception!" << e.what() << std::endl;
+	    i_worker<To,extype>::set_result(WorkResult::Failure,e);
 	}
 
 	state.action(TaskAction::Finish);	

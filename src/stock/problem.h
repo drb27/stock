@@ -2,6 +2,8 @@
 #define PROBLEM_H
 
 #include <functional>
+#include <exception>
+#include <stdexcept>
 
 /**
  * Template class representing a computational problem to be solved. 
@@ -25,6 +27,28 @@ public:
      * Represents the type of the method Ti->To
      */
     typedef To fn_t(Ti);
+
+    /**
+     * Class representing a general problem executing the problem. 
+     * Thrown by solve() and operator() if any other exception is
+     * thrown by the problem method. 
+     */
+    class abort_exception : public std::logic_error
+    {
+    public:
+	
+	abort_exception() : std::logic_error("An unknown error occurred while solving a problem") 
+	{
+	}
+	
+	abort_exception(const std::exception& e) : std::logic_error("An error occurred while solving a problem"),
+						   _inner(e)
+	{
+	}
+
+    protected:
+	std::exception _inner;
+    };
 
 protected:
 
@@ -72,7 +96,14 @@ public:
      */
     To solve() const
     {
-	return _f(_p);
+	try
+	{
+	    return _f(_p);
+	}
+	catch( const std::exception& e )
+	{
+	    throw abort_exception(e);
+	}
     }
 
     /**

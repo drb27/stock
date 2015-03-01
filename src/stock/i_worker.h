@@ -1,21 +1,27 @@
+/**
+ * @file
+ */
 #ifndef I_WORKER_H
 #define I_WORKER_H
 
 #include "i_resultor.h"
 
+/**
+ * Result code for i_worker implementations.
+ */
 enum class WorkResult
 {
-    Unknown=0,
-	Success,
-	Failure
+    Unknown=0,			///< The work has not been done yet
+	Success,		///< The work completed successfuly
+	Failure			///< The work was attempted but was unsuccessful
 	};
 
 /**
  * Interface definition for a class which can perform an action 
  * either synchronously, or asynchronously.
  */
-template<class T>
-class i_worker : public i_resultor<WorkResult>
+template<class T,class E>
+class i_worker : public i_resultor<WorkResult,E>
 {
     
 public:
@@ -23,7 +29,7 @@ public:
     /**
      * Default constructor. 
      */
-    i_worker() : i_resultor(WorkResult::Unknown) {}
+    i_worker() : i_resultor<WorkResult,E>(WorkResult::Unknown) {}
     
     /**
      * Performs the work synchronously, and returns a result code when done.
