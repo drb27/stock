@@ -112,9 +112,9 @@ namespace
 	
     }
     
-    auto static_problem = problem<const string,string>(&fetch,"AAPL");
 }
 
-stock_task::stock_task() : task<const string,string>(static_problem)
+stock_task::stock_task(string ticker) : 
+    task<const string,string>(problem<const string,string>(&fetch,ticker.c_str()))
 {
 }

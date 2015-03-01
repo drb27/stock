@@ -91,7 +91,7 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
     MLOCK;
     init_guard();
     
-    stock_task* pNewTask = new stock_task();
+    stock_task* pNewTask = new stock_task(ticker);
     g_taskset.insert(pNewTask);
     return pNewTask;
 }
@@ -113,7 +113,7 @@ void stocklib_asynch_dispose(SLHANDLE h)
 
 sl_result_t stocklib_fetch_synch(const char* ticker, char* output)
 {
-    stock_task t;
+    stock_task t(ticker);
     t.perform_sync();
     strcpy(output, t.output().c_str() );
     return SL_OK;

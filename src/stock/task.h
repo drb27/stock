@@ -75,7 +75,7 @@ public:
 	    Reset		///< Prepare the object for re-use
     };
     
-    task( problem<Ti,To>& p) : _problem(p) 
+    task( problem<Ti,To> p) : _problem(p) 
     {
 	// Add states and actions
 	state.add_states( { TaskState::NotPerformed, 

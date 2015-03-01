@@ -60,7 +60,12 @@ int main( int argc, char* argv[] )
 
     /* Fetch a result */
     char buffer[SL_MAX_BUFFER];
-    stocklib_fetch_synch(g_ticker.c_str(),buffer);
+    
+    if (SL_OK != stocklib_fetch_synch(g_ticker.c_str(),buffer) )
+    {
+	cout << "An error occurred." << endl;
+	return 1;
+    }
 
     /* Output the result */
     cout << buffer << endl;
