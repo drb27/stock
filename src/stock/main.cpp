@@ -1,7 +1,13 @@
 /**
  * @file 
  *
- * This is where all the magic happens
+ * Very simply command line program that retrieves the latest price of
+ * the given ticker symbol. 
+ *
+ * Example usage:
+ * @code
+ * me@mymachine ~/ $ stock AAPL
+ * @endcode
  */
 
 /*
@@ -31,8 +37,6 @@ SOFTWARE.
 #include <config.h>
 #include <iostream>
 #include <string>
-#include <thread>
-#include <list>
 
 #include <curl/curl.h>
 #include "stocklib.h"
@@ -40,15 +44,12 @@ SOFTWARE.
 using std::cout;
 using std::endl;
 using std::string;
-using std::ostream;
-using std::thread;
-using std::list;
 
-std::string g_ticker="AAPL";
+string g_ticker="AAPL";
 
 int main( int argc, char* argv[] )
 {
-    /* Extract symbol */
+    /* Extract symbol from command line, if supplied */
     if (argc > 1 )
 	g_ticker = argv[1];
 
