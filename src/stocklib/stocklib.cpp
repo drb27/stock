@@ -160,3 +160,17 @@ sl_result_t stocklib_asynch_wait( SLHANDLE h, int timeout)
 	throw std::logic_error("Invalid handle");
     
 }
+
+sl_result_t stocklib_asynch_register_callback(SLHANDLE h, SLCALLBACK c, void* data)
+{
+    MLOCK;
+    init_guard();
+
+    // Is this a known task?
+    if ( g_taskset.find(h)!=g_taskset.end() )
+    {
+	return SL_FAIL;
+    }
+    else
+	return SL_FAIL;
+}

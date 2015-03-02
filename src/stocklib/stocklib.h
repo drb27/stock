@@ -50,7 +50,6 @@ typedef enum
     SL_TIMEOUT=3		/**< The request timed out   */
 } sl_result_t;
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,6 +61,14 @@ extern "C" {
      */
     typedef void *SLHANDLE;
 #endif
+
+    /**
+     * Type definition for callback functions
+     *
+     * @param h A handle to the asynchronous request this callback was triggered by
+     * @param data an application-defined pointer to some data
+     */
+    typedef void (*SLCALLBACK)(SLHANDLE h,void* data);
 
 
     /**
@@ -160,6 +167,19 @@ extern "C" {
      * @return the outcome of the asynchronous operation
      */
     extern sl_result_t stocklib_asynch_wait( SLHANDLE h, int timeout=0 );
+
+    /**
+     * Registers a callback which will be called upon completion of an asychronous
+     * operation. If the operation has already completed, the callback will be called
+     * immediately. 
+     *
+     * @param h    A handle to the operation on which to set the callback
+     * @param c    A pointer to the callback function
+     * @param data An application defined data pointer which will be passed to c
+     *
+     * @return SL_OK if the callback was set, SL_FAIL otherwise.
+     */
+    extern sl_result_t stocklib_asynch_register_callback(SLHANDLE h, SLCALLBACK c, void* data);
 
 #ifdef __cplusplus
 }
