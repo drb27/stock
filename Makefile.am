@@ -68,6 +68,8 @@ coverage: check
 	cd cov; lcov --remove app.info "src/test*" -o app.info
 	cd cov; genhtml app.info --demangle-cpp
 	rm -f src/stock/*.gcda
+	rm -f src/stocklib/*.gcda
+	rm -f src/test/*.gcda
 
 src/stockgui/resources.c: src/stockgui/window.ui src/stockgui/stock.gresource.xml
 	cd src/stockgui; glib-compile-resources stock.gresource.xml --target=resources.c --generate-source

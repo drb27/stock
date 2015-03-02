@@ -22,11 +22,19 @@ public:
     /** @name Test Cases */
     // @{
     void testConstruction();
+    void testContents();
+    void testReset();
+    void testMove();
+    void testOverflow();
     // @}
 
     /** \cond internal */
     CPPUNIT_TEST_SUITE( BufferTestFixture );
     CPPUNIT_TEST( testConstruction );
+    CPPUNIT_TEST( testContents );
+    CPPUNIT_TEST( testReset );
+    CPPUNIT_TEST( testMove );
+    CPPUNIT_TEST( testOverflow );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };
