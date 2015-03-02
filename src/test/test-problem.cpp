@@ -1,5 +1,5 @@
 #include "test-problem.h"
-#include "../stock/problem.h"
+#include <stocklib/problem.h>
 
 ProblemTestFixture::ProblemTestFixture()
 {

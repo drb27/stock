@@ -39,7 +39,7 @@ SOFTWARE.
 #include <string>
 
 #include <curl/curl.h>
-#include "stocklib.h"
+#include <stocklib/stocklib.h>
 
 using std::cout;
 using std::endl;

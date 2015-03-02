@@ -1,4 +1,4 @@
-#include "../stock/task.h"
+#include <stocklib/task.h>
 #include "test-task.h"
 
 #include <thread>

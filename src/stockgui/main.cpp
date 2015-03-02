@@ -11,7 +11,7 @@
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
-#include <stocklib.h>
+#include <stocklib/stocklib.h>
 
 using std::string;
 using std::thread;

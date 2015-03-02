@@ -71,6 +71,7 @@ docs/man
 docs/Doxyfile
 docs/doxyfile.stamp
 autoscan.log
+src/stocklib/.dirstamp
 
 #Others
 /src/stockgui/.dirstamp

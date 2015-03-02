@@ -3,57 +3,58 @@ AM_CXXFLAGS=-std=c++11 -pthread -DBUILDSTAMP="$(BUILDSTAMP)"
 bin_PROGRAMS=stock stockgui
 stock_SOURCES=src/stock/main.cpp
 stock_LDADD=libstock.a
+stock_CPPFLAGS=-Isrc
 
 stockgui_SOURCES=src/stockgui/main.cpp 
 nodist_stockgui_SOURCES=src/stockgui/resources.c
 stockgui_LDADD=libstock.a $(GTK_LIBS)
-stockgui_CPPFLAGS = $(GTK_CFLAGS) -Isrc/stock/
+stockgui_CPPFLAGS = $(GTK_CFLAGS) -Isrc
 
 noinst_LIBRARIES = libstock.a
 
 libstock_a_SOURCES= \
-	src/stock/problem.h \
-	src/stock/buffer.cpp \
-	src/stock/deathrattle.cpp \
-	src/stock/buffer.h \
-	src/stock/deathrattle.h \
-	src/stock/sweepup.h \
-	src/stock/state.h \
-	src/stock/task.cpp \
-	src/stock/task.h \
-	src/stock/i_worker.h \
-	src/stock/i_resultor.h \
-	src/stock/stock-task.h \
-	src/stock/stock-task.cpp \
-	src/stock/stocklib.h \
-	src/stock/stocklib_p.h \
-	src/stock/stocklib.cpp
+	src/stocklib/problem.h \
+	src/stocklib/buffer.cpp \
+	src/stocklib/deathrattle.cpp \
+	src/stocklib/buffer.h \
+	src/stocklib/deathrattle.h \
+	src/stocklib/sweepup.h \
+	src/stocklib/state.h \
+	src/stocklib/task.cpp \
+	src/stocklib/task.h \
+	src/stocklib/i_worker.h \
+	src/stocklib/i_resultor.h \
+	src/stocklib/stock-task.h \
+	src/stocklib/stock-task.cpp \
+	src/stocklib/stocklib.h \
+	src/stocklib/stocklib_p.h \
+	src/stocklib/stocklib.cpp
 
 TESTS=stock_tests
 check_PROGRAMS=stock_tests
 stock_tests_SOURCES = src/test/main.cpp \
 	src/test/test-buffer.cpp \
 	src/test/test-buffer.h \
-	src/stock/buffer.cpp \
-	src/stock/buffer.h \
+	src/stocklib/buffer.cpp \
+	src/stocklib/buffer.h \
 	src/test/test-problem.cpp \
 	src/test/test-problem.h \
-	src/stock/problem.h \
+	src/stocklib/problem.h \
 	src/test/test-state.cpp \
 	src/test/test-state.h \
-	src/stock/state.h \
+	src/stocklib/state.h \
 	src/test/test-task.h \
 	src/test/test-task.cpp \
-	src/stock/task.h \
-	src/stock/i_worker.h \
-	src/stock/i_resultor.h \
-	src/stock/stock-task.h \
-	src/stock/stock-task.cpp \
-	src/stock/stocklib.h \
-	src/stock/stocklib_p.h \
-	src/stock/stocklib.cpp
+	src/stocklib/task.h \
+	src/stocklib/i_worker.h \
+	src/stocklib/i_resultor.h \
+	src/stocklib/stock-task.h \
+	src/stocklib/stock-task.cpp \
+	src/stocklib/stocklib.h \
+	src/stocklib/stocklib_p.h \
+	src/stocklib/stocklib.cpp
 
-stock_tests_CXXFLAGS=-O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
+stock_tests_CXXFLAGS= -Isrc -O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 
 EXTRA_DIST=src/stockgui/window.ui.in src/stockgui/stock.gresource.xml
 

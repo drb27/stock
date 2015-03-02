@@ -10,7 +10,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "../stock/task.h"
+#include <stocklib/task.h>
 
 template<class Ti, class To> class problem;
 

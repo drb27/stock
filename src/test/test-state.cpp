@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include "test-state.h"
-#include "../stock/state.h"
+#include <stocklib/state.h>
 
 static const std::list<TestAction> actions = { TestAction::Start, TestAction::Pause, TestAction::Stop };
 static const std::list<TestState> states = { TestState::Idle, TestState::Running, TestState::Died };
