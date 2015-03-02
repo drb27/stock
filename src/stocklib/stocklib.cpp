@@ -93,6 +93,8 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
     
     stock_task* pNewTask = new stock_task(ticker);
     g_taskset.insert(pNewTask);
+
+    pNewTask->perform_async();
     return pNewTask;
 }
 
@@ -101,11 +103,17 @@ void stocklib_asynch_dispose(SLHANDLE h)
     MLOCK;
     init_guard();
 
+    // Is this a known task?
     if ( g_taskset.find(h)!=g_taskset.end())
     {
-	// TODO: Check it is in a disposable state
-	g_taskset.erase(h);
-	delete h;
+	// Yes - now check it is in a disposable state
+	if ( h->ready() )
+	{
+	    g_taskset.erase(h);
+	    delete h;
+	}
+	else
+	    throw std::logic_error("Can't dispose of this handle - async request in progress");
     }
     else
 	throw std::logic_error("Invalid handle");
@@ -117,4 +125,38 @@ sl_result_t stocklib_fetch_synch(const char* ticker, char* output)
     t.perform_sync();
     strcpy(output, t.output().c_str() );
     return SL_OK;
+}
+
+BOOL stocklib_is_complete( SLHANDLE h )
+{
+    MLOCK;
+    init_guard();
+
+    // Is this a known task?
+    if ( g_taskset.find(h)!=g_taskset.end() )
+    {
+	return h->ready();
+    }
+    else
+	throw std::logic_error("Invalid handle");
+}
+
+sl_result_t stocklib_asynch_wait( SLHANDLE h, int timeout)
+{
+    MLOCK;
+    init_guard();
+
+    // Is this a known task?
+    if ( g_taskset.find(h)!=g_taskset.end() )
+    {
+	WorkResult r = h->wait();
+	if (r==WorkResult::Success) 
+	    return SL_OK;
+	else
+	    return SL_FAIL;
+	
+    }
+    else
+	throw std::logic_error("Invalid handle");
+    
 }
