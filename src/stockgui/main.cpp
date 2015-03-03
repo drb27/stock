@@ -42,6 +42,7 @@ typedef struct _controls_t
     GtkDialog* about;
     GtkWidget* about_ok;
     GtkMenuItem* menu_about;
+    GtkMenuItem* menu_quit;
     GtkLabel* buildstamp;
 } controls_t;
 
@@ -77,6 +78,14 @@ gboolean on_menu_about(gpointer pdata)
     /* Must manually hide the about box - but don't destroy it! */
     gtk_widget_hide(GTK_WIDGET(controls.about));
     return FALSE;
+}
+
+/**
+ * Callback invoked when the Quit menu option is selected
+ */
+gboolean on_menu_quit(gpointer pdata)
+{
+    on_window_destroy();
 }
 
 /**
@@ -175,12 +184,16 @@ int main(int argc, char* argv[])
     controls.lasttradeprice = GTK_ENTRY( gtk_builder_get_object(builder,"lasttradeprice") );
     controls.ticker = GTK_ENTRY( gtk_builder_get_object(builder,"ticker") );
 
+    /* Locate the controls for the menu */
+    controls.menu_about = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
+    controls.menu_quit = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_quit") );
+    g_signal_connect(controls.menu_about,"activate", G_CALLBACK(on_menu_about), NULL );
+    g_signal_connect(controls.menu_quit,"activate", G_CALLBACK(on_menu_quit), NULL );
+
     /* Locate the controls for the about box */
     controls.about = GTK_DIALOG( gtk_builder_get_object(builder,"dialog_about"));
     controls.about_ok = GTK_WIDGET( gtk_builder_get_object(builder,"dlg_about_ok_btn") );
-    controls.menu_about = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
     controls.buildstamp = GTK_LABEL( gtk_builder_get_object(builder,"buildstamp") );
-    g_signal_connect(controls.menu_about,"activate", G_CALLBACK(on_menu_about), NULL );
     g_signal_connect(controls.about_ok,"clicked", G_CALLBACK(on_about_ok), NULL );
 
     /* Set the buildtstamp label */
