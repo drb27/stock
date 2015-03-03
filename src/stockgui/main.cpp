@@ -56,8 +56,13 @@ static controls_t controls;
  */
 void on_window_destroy()
 {
+    /* Ensure all asynchronous tasks have finished */
     stocklib_wait_all();
+
+    /* Tidy up any open handles */
     stocklib_cleanup();
+
+    /* Quit the main GTK processing loop */
     gtk_main_quit();
 }
 
@@ -86,7 +91,6 @@ gboolean on_got_result(gpointer pdata)
 }
 
 static char rbuffer[SL_MAX_BUFFER]="Oh boy!";
-static bool handleLive=false;
 
 /**
  * Callback invoked when the OK button of the about dialog is pressed
@@ -102,7 +106,7 @@ void on_asynch_result( SLHANDLE h, void* pData )
     if ( SL_OK != stocklib_asynch_result(h) )
 	g_result = "[ERROR]";
     else
-	g_result = rbuffer;//"TEMP"; //string((char*)pData);
+	g_result = rbuffer;
 
     // Update the UI on the correct thread
     g_main_context_invoke(NULL,on_got_result,h);
