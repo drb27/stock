@@ -44,7 +44,23 @@ SOFTWARE.
 
 /**
  * A thread-safe state machine implementation, with a dynamic definition which
- * can be modified at run-time. (Actions only, not states. States are compile-time.
+ * can be modified at run-time.
+ *
+ * Possible modifications include the ability to change state transitions, state
+ * entry callback actions, and state exit callback actions. 
+ *
+ * Most public member functions are protected by a mutex, preventing
+ * simultaneous access from multiple threads. However, the mutex is recursive,
+ * meaning that these members are re-entrant, and it is possible to call them
+ * from each other (e.g. during a callback). This is handy in preventing
+ * deadlocks, while maintaining thread safety. 
+ *
+ * States are self-explanatory. Actions are the stimuli that cause changes in
+ * state to occur. Transitions are changes from one state to another in response
+ * to an action. 
+ *
+ * @param S A strongly-typed enumeration describing the states
+ * @param A A strongly-typed enumeration describing the actions
  */
 template<class S,class A>
 class state_machine
@@ -63,37 +79,143 @@ public:
     }
 
 
+    /**
+     * Adds a state to the state machine. You need to manually create each state.
+     */
     void add_state(S s)  { LOCK; add_state_bare(s); }
+
+    /**
+     * Adds an action to the state machine. You need to manually create each action.
+     */
     void add_action(A a) { LOCK; add_action_bare(a); }
 
+    /**
+     * Adds multiple states to the state machine. Equivalent to calling
+     * add_state() on each member of the list. 
+     */
     void add_states( const std::list<S>& s)  { LOCK; for ( auto st : s ) add_state_bare(st); }
+
+    /**
+     * Adds multipe actions to the state machine. Equivalent to calling
+     * add_action() on each member of the list. 
+     */
     void add_actions( const std::list<A>& a) { LOCK; for ( auto ac : a ) add_action_bare(ac); }
 
+    /**
+     * Determines if a state has been added with add_state() or add_states() 
+     */
     bool has_state(S s) const { LOCK; return has_state_bare(s); }
+
+    /**
+     * Determines if an action has been added with add_action() or add_actions()
+     */
     bool has_action(A a) const { LOCK; return has_action_bare(a); }
 
+    /**
+     * Adds a transition to the state machine definition. You should only add
+     * one transition for each (os,ac) pair. Behaviour is undefined if you
+     * violate this. 
+     *
+     * @param os the starting state
+     * @param ac the action causing the transition
+     * @param ns the new state
+     */
     void add_transition(S os, A ac, S ns) { LOCK; add_transition_bare(os,ac,ns); }
 
+    /**
+     * Returns the state that would result if the given action is received from
+     * the given state
+     * 
+     * @param os The state
+     * @param ac The action
+     * @return The hypothetical new state. A transition does not actually
+     * occur. 
+     */
     S get_transition(S os, A ac) const { LOCK; return get_transition_bare(os,ac); } 
 
+    /**
+     * Initializes the state machine to the given initial state. The state must
+     * have previously been added with add_state() or add_states(). This method
+     * should be called before any transitions are attempted. 
+     *
+     * @param initial The state the machine assumes as its initial state. 
+     *
+     * @note If defined, the entry actions for the state will be executed
+     * before this call returns. 
+     */
     void initialize(S initial) const { LOCK; _state=initial; do_entry_actions_bare(); }
 
+    /**
+     * Queries the state the state machine is currently in.
+     * @return The identifier of the current state
+     */
     S get_state() const { LOCK; return _state; }
 
+    /**
+     * Performs on action on the state machine. Note that this may have no
+     * effect if an applicable transition has not been defined.
+     * 
+     * @param a The action to perform
+     */
     void action(A a) const { LOCK; LOCK2; action_bare(a); } 
 
+    /**
+     * Defines entry actions for the given state. Whenever a transition to the
+     * given state occurs, the given function is executed immediately following
+     * the state change, in the caller's thread, before this API call returns.
+     *
+     * @param s The state to which the entry function is applied
+     * @param f The function to call each time the state is entered 
+     */
     void set_entry_function(S s, std::function<void()> f) { LOCK; set_entry_function_bare(s,f); }
+
+    /**
+     * Defines exit actions for the given state. Whenever a transition out of
+     * the given state occurs, the given function is executed immediately prior
+     * to the state change, in the caller's thread, before this API call
+     * returns.
+     *
+     * @param s The state to which the exit function is applied
+     * @param f The function to call each time the state is exited
+     *
+     * @note The exit function will not be called upon destruction of the
+     * object.  
+     */
     void set_exit_function(S s, std::function<void()> f)  { LOCK; set_exit_function_bare(s,f); }
 
+    /**
+     * Throws a std::logic_error exception if the state machine is not in the
+     * given state. If you need to ensure that no state change occurs following
+     * this call, obtain a lock first with obtain_lock(), then call this. No
+     * state change can occur until the lock is released. It is still safe to
+     * call other methods of the object from the same thread - only other
+     * threads will be blocked.
+     *
+     * @param s The state to test for
+     */
     void ensure_state(S s) const { LOCK; if (s!=_state) throw std::logic_error(); }
 
+    /**
+     * Obtains a lock on the object. No state changes will be possible from
+     * other threads until the lock is released by either going out of scope or
+     * by calling unlock() upon it. The calling thread that obtains the lock can
+     * still operate freely on the state machine, including initiating a
+     * transition.
+     *
+     * @return a lock which prevents access to the state machine from other threads.
+     */
     std::unique_lock<std::recursive_mutex> obtain_lock() const
     {
-	// Returns a lock which already locks the mutex. When the object goes out
-	// of scope in the caller's context, the lock is released. 
 	return std::unique_lock<std::recursive_mutex>(_mutex);
     }
 
+    /**
+     * Blocks the calling thread indefinitely until the given state is
+     * entered. If the state machine is already in the given state, this
+     * function returns immediately.
+     *
+     * @param s The state to wait for
+     */
     void wait_for_state_entry(S s) const
     {
 	std::unique_lock<std::recursive_mutex> main_lock(_mutex);

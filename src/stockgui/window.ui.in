@@ -112,7 +112,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem5">
+                      <object class="GtkImageMenuItem" id="menu_quit">
                         <property name="label">gtk-quit</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -166,8 +166,11 @@
               <object class="GtkEntry" id="ticker">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Enter the ticker symbol for the stock or security you are interested in.</property>
                 <property name="hexpand">True</property>
                 <property name="text" translatable="yes">AAPL</property>
+                <property name="caps_lock_warning">False</property>
+                <property name="input_hints">GTK_INPUT_HINT_UPPERCASE_CHARS | GTK_INPUT_HINT_NONE</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -191,8 +194,10 @@
             </child>
             <child>
               <object class="GtkEntry" id="lasttradeprice">
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">The latest price at which the security changed hands will be displayed here. You cannot edit this field.</property>
                 <property name="editable">False</property>
                 <property name="text" translatable="yes">?</property>
               </object>
