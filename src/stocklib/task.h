@@ -140,7 +140,12 @@ public:
     {
 	state.wait_for_state_entry(TaskState::Finished);
 	return i_worker<To,extype>::result();
-    } 
+    }
+
+    virtual std::unique_lock<std::mutex> obtain_lock()
+    {
+	return std::unique_lock<std::mutex>(_mutex);
+    }
 
 
     ///@}

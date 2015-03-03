@@ -181,6 +181,19 @@ extern "C" {
      */
     extern sl_result_t stocklib_asynch_register_callback(SLHANDLE h, SLCALLBACK c, void* data);
 
+
+    /**
+     * Waits for all pending operations to complete.
+     */
+    extern sl_result_t stocklib_wait_all();
+
+    /**
+     * Disposes of any remaining open handles, regardless of state. 
+     * Call stocklib_wait_all() first, if you want to ensure no 
+     * operations are pending. 
+     */
+    extern sl_result_t stocklib_cleanup();
+
 #ifdef __cplusplus
 }
 #endif

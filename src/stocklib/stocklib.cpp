@@ -112,6 +112,9 @@ void stocklib_asynch_dispose(SLHANDLE h)
 	// Yes - now check it is in a disposable state
 	if ( h->ready() )
 	{
+	    auto l = h->obtain_lock();
+	    l.unlock();
+	    l.release();
 	    g_taskset.erase(h);
 	    delete h;
 	}
@@ -199,4 +202,45 @@ sl_result_t stocklib_asynch_result(SLHANDLE h)
     }
     else
 	throw std::logic_error("Invalid handle");
+}
+
+sl_result_t stocklib_wait_all()
+{
+    MLOCK;
+    init_guard();
+
+    // Wait for all tasks to complete
+    for ( auto h : g_taskset )
+    {
+	// Wait for entry into the finish state
+	if (!h->ready())
+	    h->wait();
+
+	// Wait for state entry actions to complete
+	auto l = h->obtain_lock();
+	l.unlock();
+	l.release();
+
+    }
+
+    return SL_OK;
+
+}
+
+sl_result_t stocklib_cleanup()
+{
+    MLOCK;
+    init_guard();
+
+    for ( auto h : g_taskset )
+    {
+	if (h->ready())
+	    delete h;
+	else
+	    return SL_FAIL;
+    }
+
+    g_taskset.clear();
+    return SL_OK;
+
 }

@@ -56,6 +56,8 @@ static controls_t controls;
  */
 void on_window_destroy()
 {
+    stocklib_wait_all();
+    stocklib_cleanup();
     gtk_main_quit();
 }
 
