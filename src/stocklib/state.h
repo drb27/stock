@@ -147,12 +147,18 @@ protected:
 	if (is_valid_transition_bare(a))
 	{
 	    S newState = get_transition_bare(_state,a);
-	    
-	    do_exit_actions_bare();
-	     _state = newState;
-	    do_entry_actions_bare();
 
+	    // Exit actions
+	    do_exit_actions_bare();
+
+	    // Enter the new state
+	    _state = newState;
+
+	    // Notify waiters
 	     _state_change.notify_all();
+
+	     // Perform new state entry actions
+	     do_entry_actions_bare();
 	}
 	else
 	    throw std::logic_error("Invalid action for current state");
