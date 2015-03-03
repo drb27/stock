@@ -112,19 +112,24 @@ public:
 	std::lock_guard<std::mutex> guard(_mutex);
 	state.action(TaskAction::Begin);
 	
-	perform();
+	perform([](){});
 
 	return i_worker<To,extype>::result();
     }
 
     virtual void perform_async()
     {
+	perform_async( [](){} );
+    }
+
+    virtual void perform_async(std::function<void()> f)
+    {
 	std::lock_guard<std::mutex> guard(_mutex);
 	state.action(TaskAction::Begin);
 
-	std::thread t( [this]()
+	std::thread t( [this,f]()
 		       {
-			   this->perform();
+			   this->perform(f);
 		       } );
 	
 	t.detach();
@@ -155,12 +160,13 @@ public:
 
 private:
 
-    virtual void perform() final
+    virtual void perform(std::function<void()> f) final
     {
 	try
 	{
 	    _output = std::unique_ptr<To>(new To(_problem() ));
-	    i_worker<To,extype>::set_result(WorkResult::Success);	
+	    i_worker<To,extype>::set_result(WorkResult::Success);
+	    f();
 	}
 	catch ( const extype& e )
 	{

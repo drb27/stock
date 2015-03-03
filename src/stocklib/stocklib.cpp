@@ -94,7 +94,10 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
     stock_task* pNewTask = new stock_task(ticker);
     g_taskset.insert(pNewTask);
 
-    pNewTask->perform_async();
+    pNewTask->perform_async( [=]()
+			     {
+				 strcpy(output, pNewTask->output().c_str() );
+			     } );
     return pNewTask;
 }
 
