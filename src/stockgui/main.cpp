@@ -77,10 +77,14 @@ gboolean on_menu_about(gpointer pdata)
  */
 gboolean on_got_result(gpointer pdata)
 {
+    stocklib_asynch_dispose((SLHANDLE)pdata);
     gtk_entry_set_text(controls.lasttradeprice,g_result.c_str());
     gtk_widget_set_sensitive(controls.gobutton,true);
     return FALSE;
 }
+
+static char rbuffer[SL_MAX_BUFFER]="Oh boy!";
+static bool handleLive=false;
 
 /**
  * Callback invoked when the OK button of the about dialog is pressed
@@ -90,12 +94,25 @@ void on_about_ok()
     gtk_dialog_response(controls.about,0);
 }
 
+void on_asynch_result( SLHANDLE h, void* pData )
+{
+    // Determine the outcome of the request, store result
+    if ( SL_OK != stocklib_asynch_result(h) )
+	g_result = "[ERROR]";
+    else
+	g_result = rbuffer;//"TEMP"; //string((char*)pData);
+
+    // Update the UI on the correct thread
+    g_main_context_invoke(NULL,on_got_result,h);
+}
+
 
 /**
  * Callback invoked when the 'go' button is clicked.
  */
 void on_button_clicked()
 {
+
     // Disble the button, to permit only one look-up at a time
     gtk_widget_set_sensitive(controls.gobutton,false);
 
@@ -105,22 +122,9 @@ void on_button_clicked()
     // Get the ticker text, and store in g_ticker
     g_ticker = gtk_entry_get_text(controls.ticker);
 
-    thread t( [&]()
-	      {
-		  char buffer[SL_MAX_BUFFER];
-		  if ( SL_OK != stocklib_fetch_synch( g_ticker.c_str(), buffer ) )
-		  {
-		      g_result = "[ERROR]";
-		  }
-		  else
-		  {
-		      g_result=string(buffer);
-		  }
-
-		  g_main_context_invoke(NULL,on_got_result,nullptr);
-	      } );
-
-    t.detach();
+    // Invoke an asynchronous fetch of the data
+    SLHANDLE h = stocklib_fetch_asynch( g_ticker.c_str(), rbuffer );
+    stocklib_asynch_register_callback(h,&on_asynch_result,rbuffer); 
 }
 
 //@}

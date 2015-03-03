@@ -30,13 +30,28 @@ SOFTWARE.
 #define STOCK_TASK_H
 
 #include <string>
-#include "task.h"
+#include <functional>
 
+#include "task.h"
 
 class stock_task : public task<const std::string,std::string>
 {
 public:
     stock_task(std::string);
+
+    typedef void (callback)(stock_task*,void*);
+
+    void set_completion_callback( callback* c, void* data );
+
+protected:
+
+    void notify_callback();
+
+private:
+    std::function<callback> _callback_fn;
+    //std::function<void(stock_task*,void*)> _callback_fn;
+    void* _callback_data;
+    
 };
 
 #endif

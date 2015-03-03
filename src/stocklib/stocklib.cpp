@@ -169,8 +169,31 @@ sl_result_t stocklib_asynch_register_callback(SLHANDLE h, SLCALLBACK c, void* da
     // Is this a known task?
     if ( g_taskset.find(h)!=g_taskset.end() )
     {
-	return SL_FAIL;
+	h->set_completion_callback(c,data);
+	return SL_OK;
     }
     else
 	return SL_FAIL;
+}
+
+sl_result_t stocklib_asynch_result(SLHANDLE h)
+{
+    MLOCK;
+    init_guard();
+
+    // Is this a known task?
+    if ( g_taskset.find(h)!=g_taskset.end() )
+    {
+	if ( h->ready() )
+	{
+	    if ( h->result() == WorkResult::Success )
+		return SL_OK;
+	    else
+		return SL_FAIL;
+	}
+	else
+	    return SL_PENDING;
+    }
+    else
+	throw std::logic_error("Invalid handle");
 }

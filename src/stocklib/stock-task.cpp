@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include <regex>
+#include <functional>
 #include <curl/curl.h>
 #include <jansson.h>
 #include "buffer.h"
@@ -37,6 +38,7 @@ SOFTWARE.
 
 using std::string;
 using std::regex;
+using std::function;
 
 namespace
 {
@@ -117,4 +119,23 @@ namespace
 stock_task::stock_task(string ticker) : 
     task<const string,string>(problem<const string,string>(&fetch,ticker.c_str()))
 {
+}
+
+void stock_task::set_completion_callback( callback* c, void* data )
+{
+    auto lock = state.obtain_lock();
+
+    _callback_fn = function<callback>(c);
+    _callback_data = data;
+    
+    state.set_entry_function( TaskState::Finished,
+			      [this]() { this->notify_callback(); } );
+
+    if (state.get_state()==TaskState::Finished)
+	notify_callback();
+}
+
+void stock_task::notify_callback()
+{
+    _callback_fn(this,_callback_data);
 }
