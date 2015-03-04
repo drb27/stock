@@ -109,7 +109,7 @@ public:
     
     virtual WorkResult perform_sync()
     {
-	std::lock_guard<std::mutex> guard(_mutex);
+	std::lock_guard<std::recursive_mutex> guard(_mutex);
 	state.action(TaskAction::Begin);
 	
 	perform([](){});
@@ -124,7 +124,7 @@ public:
 
     virtual void perform_async(std::function<void()> f)
     {
-	std::lock_guard<std::mutex> guard(_mutex);
+	std::lock_guard<std::recursive_mutex> guard(_mutex);
 	state.action(TaskAction::Begin);
 
 	std::thread t( [this,f]()
@@ -139,12 +139,13 @@ public:
     virtual WorkResult wait() const
     {
 	state.wait_for_state_entry(TaskState::Finished);
+	std::lock_guard<std::recursive_mutex> guard(_mutex);
 	return i_worker<To,extype>::result();
     }
 
-    virtual std::unique_lock<std::mutex> obtain_lock()
+    virtual std::unique_lock<std::recursive_mutex> obtain_lock()
     {
-	return std::unique_lock<std::mutex>(_mutex);
+	return std::unique_lock<std::recursive_mutex>(_mutex);
     }
 
 
@@ -152,14 +153,14 @@ public:
 
     virtual void reset()
     {
-	std::lock_guard<std::mutex> guard(_mutex);
+	std::lock_guard<std::recursive_mutex> guard(_mutex);
 	state.action(TaskAction::Reset);
 	i_resultor<WorkResult,extype>::reset_result(WorkResult::Unknown);
     }
 
     virtual To output() const
     {
-	std::lock_guard<std::mutex> guard(_mutex);
+	std::lock_guard<std::recursive_mutex> guard(_mutex);
 	return *_output;
     }
 
@@ -167,11 +168,12 @@ private:
 
     virtual void perform(std::function<void()> f) final
     {
+	bool doCompletion=false;
 	try
 	{
 	    _output = std::unique_ptr<To>(new To(_problem() ));
 	    i_worker<To,extype>::set_result(WorkResult::Success);
-	    f();
+	    doCompletion=true;
 	}
 	catch ( const extype& e )
 	{
@@ -183,12 +185,14 @@ private:
 					    extype("Unexpected exception thrown from problem execution"));
 	}
 
+	if (doCompletion) f();
 	state.action(TaskAction::Finish);	
+
     }
 
 protected:
 
-    mutable std::mutex _mutex;
+    mutable std::recursive_mutex _mutex;
     const problem<Ti,To>  _problem;
     std::unique_ptr<To> _output = nullptr;
     state_machine<TaskState,TaskAction> state;

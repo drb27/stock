@@ -32,12 +32,19 @@ SOFTWARE.
 #include <string>
 #include <functional>
 
+#include <stocklib/stock-task-modes.h>
 #include "task.h"
 
-class stock_task : public task<const std::string,std::string>
+typedef struct
+{
+    std::string ticker;
+    sl_test_behavior_t behavior;
+} stock_task_params_t;
+
+class stock_task : public task<stock_task_params_t,std::string>
 {
 public:
-    stock_task(std::string);
+    stock_task(std::string, sl_test_behavior_t);
 
     typedef void (callback)(stock_task*,void*);
 
@@ -49,7 +56,6 @@ protected:
 
 private:
     std::function<callback> _callback_fn;
-    //std::function<void(stock_task*,void*)> _callback_fn;
     void* _callback_data;
     
 };

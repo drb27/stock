@@ -276,11 +276,12 @@ protected:
 	    // Enter the new state
 	    _state = newState;
 
+	    // Perform new state entry actions
+	    do_entry_actions_bare();
+	    
 	    // Notify waiters
-	     _state_change.notify_all();
-
-	     // Perform new state entry actions
-	     do_entry_actions_bare();
+	    _state_change.notify_all();
+	    
 	}
 	else
 	    throw std::logic_error("Invalid action for current state");

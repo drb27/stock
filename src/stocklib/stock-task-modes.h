@@ -1,5 +1,6 @@
 /**
  * @file
+ * Describes the modes supported by test mode
  */
 
 /*
@@ -26,32 +27,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef STOCK_TASK_MODES_H
+#define STOCK_TASK_MODES_H
 
-class buffer
-{
- public:
-    
-    /* Lifecycle Management */
-    buffer(unsigned long sz);
-    buffer( buffer&& );
-    buffer( buffer const & ) = delete;
-    buffer& operator=(buffer const &) = delete;
-    virtual ~buffer();
+/**
+ * Behavior types to be used with test mode. 
+ * In test mode, the library does not reach out to the outside world to satisfy
+ * either synchronous or asychronous requests. Instead, fake responses are
+ * provided. This is useful not only for testing your application's error
+ * handling, but also the internal error handling of this library. Use with the
+ * stocklib_p_test_behavior() and stocklib_p_test_mode() calls. 
+ */
+typedef enum
+    {
+        SLTBNone,		/**< No special responses - normal operation  */
+	SLTBNormalRequest,	/**< Fakes a correct response  */
+	SLTBGibberishRequest,	/**< Fakes a bad (non-conforming) response  */
+	SLTBHangingRequest	/**< Fakes a non-returning response (sleeps forever)  */
+    } sl_test_behavior_t;
 
-
-    /* Public API */
-    void reset();
-    bool append(const void* pData, unsigned long sz);
-    unsigned long remaining_bytes() const;
-    const char* contents() const;
-
-protected:
-    const unsigned long size;
-    char* _buffer;
-    char* index;
-
-};
-
+ 
 #endif

@@ -1,5 +1,5 @@
 BUILDSTAMP=$(shell date)
-AM_CXXFLAGS=-std=c++11 -pthread -DBUILDSTAMP="$(BUILDSTAMP)"
+AM_CXXFLAGS=-std=c++11 -pthread -DBUILDSTAMP="$(BUILDSTAMP)" -Isrc
 bin_PROGRAMS=stock stockgui
 stock_SOURCES=src/stock/main.cpp
 stock_LDADD=libstock.a
@@ -52,7 +52,9 @@ stock_tests_SOURCES = src/test/main.cpp \
 	src/stocklib/stock-task.cpp \
 	src/stocklib/stocklib.h \
 	src/stocklib/stocklib_p.h \
-	src/stocklib/stocklib.cpp
+	src/stocklib/stocklib.cpp \
+	src/test/test-stocklib.h \
+	src/test/test-stocklib.cpp
 
 stock_tests_CXXFLAGS= -Isrc -O0 -fprofile-arcs -ftest-coverage -std=c++11 -pthread
 

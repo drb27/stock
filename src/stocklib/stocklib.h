@@ -32,6 +32,7 @@ SOFTWARE.
 #define STOCKLIB_H
 
 #include <config.h>
+
 typedef char BOOL;
 
 /**
@@ -180,7 +181,6 @@ extern "C" {
      * @return SL_OK if the callback was set, SL_FAIL otherwise.
      */
     extern sl_result_t stocklib_asynch_register_callback(SLHANDLE h, SLCALLBACK c, void* data);
-
 
     /**
      * Waits for all pending operations to complete.

@@ -78,7 +78,7 @@ bool buffer::append(const void* pData, unsigned long sz)
     return true;
 }
  
-const char* buffer::contents()
+const char* buffer::contents() const
 {
     return _buffer;
 }

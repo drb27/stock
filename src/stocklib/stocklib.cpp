@@ -42,16 +42,11 @@ typedef std::set<stock_task*> taskset;
 
 #define MLOCK std::lock_guard<std::mutex> lock(g_mutex)
 
-enum class OperatingMode
-{
-    Normal,
-	Test
-};
-
 namespace 
 {
     BOOL g_initialized{false};
-    OperatingMode g_mode{OperatingMode::Normal};
+    sl_test_behavior_t g_behavior{SLTBNone};
+    BOOL g_testmode{false};
     taskset g_taskset;
     std::mutex g_mutex;
 }
@@ -67,15 +62,35 @@ void stocklib_init()
     MLOCK;
     if (g_initialized)
 	throw std::logic_error("stocklib is already initialized");
-    g_initialized=true;
+    
+    g_initialized = true;
+    g_behavior = SLTBNone;
+    g_testmode = false;
 }
 
-void stocklib_p_test_mode()
+void stocklib_p_reset()
+{
+    MLOCK;
+    g_initialized=false;
+    g_taskset.clear();
+    g_testmode = false;
+    g_behavior = SLTBNone;
+}
+
+void stocklib_p_test_mode(BOOL enable)
 {
     MLOCK;
     init_guard();
 
-    g_mode = OperatingMode::Test;
+    g_testmode = enable;
+}
+
+void stocklib_p_test_behavior( sl_test_behavior_t b )
+{
+    MLOCK;
+    init_guard();
+
+    g_behavior = b;
 }
 
 int stocklib_p_open_handles()
@@ -91,7 +106,8 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
     MLOCK;
     init_guard();
     
-    stock_task* pNewTask = new stock_task(ticker);
+    stock_task* pNewTask = new stock_task(ticker,
+					  (g_testmode)?g_behavior:SLTBNone);
     g_taskset.insert(pNewTask);
 
     pNewTask->perform_async( [=]()
@@ -127,10 +143,18 @@ void stocklib_asynch_dispose(SLHANDLE h)
 
 sl_result_t stocklib_fetch_synch(const char* ticker, char* output)
 {
-    stock_task t(ticker);
-    t.perform_sync();
-    strcpy(output, t.output().c_str() );
-    return SL_OK;
+    stock_task t(ticker,
+		 (g_testmode)?g_behavior:SLTBNone
+		 );
+
+    WorkResult r = t.perform_sync();
+    if (r==WorkResult::Success)
+    {
+	strcpy(output, t.output().c_str() );
+	return SL_OK;
+    }
+    else
+	return SL_FAIL;
 }
 
 BOOL stocklib_is_complete( SLHANDLE h )

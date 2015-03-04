@@ -11,12 +11,13 @@
 #include "test-problem.h"
 #include "test-state.h"
 #include "test-task.h"
+#include "test-stocklib.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(BufferTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(ProblemTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(StateTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(TaskTestFixture);
-
+CPPUNIT_TEST_SUITE_REGISTRATION(StockLibTestFixture);
 
 int main(int argc, char* argv[] )
 {
