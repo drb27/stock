@@ -24,8 +24,8 @@ libstock_a_SOURCES= \
 	src/stocklib/task.h \
 	src/stocklib/i_worker.h \
 	src/stocklib/i_resultor.h \
-	src/stocklib/stock-task.h \
-	src/stocklib/stock-task.cpp \
+	src/stocklib/tickerproblem.h \
+	src/stocklib/tickerproblem.cpp \
 	src/stocklib/stocklib.h \
 	src/stocklib/stocklib_p.h \
 	src/stocklib/stocklib.cpp \
@@ -50,8 +50,8 @@ stock_tests_SOURCES = src/test/main.cpp \
 	src/stocklib/task.h \
 	src/stocklib/i_worker.h \
 	src/stocklib/i_resultor.h \
-	src/stocklib/stock-task.h \
-	src/stocklib/stock-task.cpp \
+	src/stocklib/tickerproblem.h \
+	src/stocklib/tickerproblem.cpp \
 	src/stocklib/stocklib.h \
 	src/stocklib/stocklib_p.h \
 	src/stocklib/stocklib.cpp \

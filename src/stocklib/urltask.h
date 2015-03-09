@@ -50,6 +50,7 @@ public:
 protected:
 
     virtual std::string do_work(std::string) final;
+    virtual void fetch(buffer&, const std::string&);
     virtual std::string preprocess_url(const std::string&);
     virtual std::string decode_response(const std::string&);
 

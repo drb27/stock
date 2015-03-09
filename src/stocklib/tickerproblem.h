@@ -1,5 +1,7 @@
 /**
  * @file
+ * Public header for the tickerproblem class. This class extends urlproblem to
+ * fetch stock price information from the Yahoo! API.
  */
 
 /*
@@ -26,38 +28,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef STOCK_TASK_H
-#define STOCK_TASK_H
+#ifndef TICKERPROBLEM_H
+#define TICKERPROBLEM_H
 
 #include <string>
 #include <functional>
 
 #include <stocklib/stock-task-modes.h>
-#include "task.h"
+#include "urltask.h"
 
-typedef struct
-{
-    std::string ticker;
-    sl_test_behavior_t behavior;
-} stock_task_params_t;
-
-class stock_task : public task<stock_task_params_t,std::string>
+class tickerproblem : public urlproblem
 {
 public:
-    stock_task(std::string, sl_test_behavior_t);
-
-    typedef void (callback)(stock_task*,void*);
-
-    void set_completion_callback( callback* c, void* data );
+    tickerproblem( const std::string&, sl_test_behavior_t);
 
 protected:
 
-    void notify_callback();
-
+    virtual std::string decode_response(const std::string&);
+    virtual std::string preprocess_url(const std::string&);
+    virtual void fetch(buffer&, const std::string&);
 private:
-    std::function<callback> _callback_fn;
-    void* _callback_data;
-    
+
+    const sl_test_behavior_t _behavior;
+    static const std::string _url_template;
+    static const std::string _notfound_response;
+    static const std::string _fake_response;
+    const std::string _ticker;
 };
 
 #endif

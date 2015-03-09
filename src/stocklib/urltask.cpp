@@ -84,10 +84,15 @@ string urlproblem::do_work(string url)
     string processedUrl = preprocess_url(url);
 
     /* Execute the request */
-    perform_query(rxbuffer, processedUrl);
-    
+    fetch(rxbuffer,processedUrl);
+
     /* Decode and return the response */
     return decode_response(rxbuffer.contents());
+}
+
+void urlproblem::fetch(buffer& b, const std::string& url)
+{
+    perform_query(b,url);
 }
 
 string urlproblem::preprocess_url(const string& url)

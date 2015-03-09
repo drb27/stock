@@ -40,8 +40,8 @@ SOFTWARE.
 #define SL_HAS_PRIVATE
 
 #ifndef STOCKLIB_P_H_C
-class stock_task;
-typedef stock_task* SLHANDLE;
+class urltask;
+typedef urltask* SLHANDLE;
 #else
 typedef void* SLHANDLE
 #endif

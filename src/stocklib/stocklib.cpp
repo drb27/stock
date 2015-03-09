@@ -36,9 +36,9 @@ SOFTWARE.
 #include <string.h>
 
 #include "stocklib_p.h"
-#include "stock-task.h"
+#include "tickerproblem.h"
 
-typedef std::set<stock_task*> taskset;
+typedef std::set<urltask*> taskset;
 
 #define MLOCK std::lock_guard<std::mutex> lock(g_mutex)
 
@@ -105,9 +105,13 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
 {
     MLOCK;
     init_guard();
+
+    // Create a problem
+    tickerproblem* pProblem = new tickerproblem(ticker,(g_testmode)?g_behavior:SLTBNone);
+
+    // Create a urltask
+    urltask* pNewTask = new urltask(pProblem);
     
-    stock_task* pNewTask = new stock_task(ticker,
-					  (g_testmode)?g_behavior:SLTBNone);
     g_taskset.insert(pNewTask);
 
     pNewTask->perform_async( [=]()
@@ -143,9 +147,12 @@ void stocklib_asynch_dispose(SLHANDLE h)
 
 sl_result_t stocklib_fetch_synch(const char* ticker, char* output)
 {
-    stock_task t(ticker,
-		 (g_testmode)?g_behavior:SLTBNone
-		 );
+
+    // Create a problem
+    tickerproblem* pProblem = new tickerproblem(ticker,(g_testmode)?g_behavior:SLTBNone);
+
+    // Create a task on the stack for immediate execution
+    urltask t(pProblem);
 
     WorkResult r = t.perform_sync();
     if (r==WorkResult::Success)
