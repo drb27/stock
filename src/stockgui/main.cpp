@@ -39,6 +39,7 @@ typedef struct _controls_t
     GtkWidget* gobutton;
     GtkEntry* lasttradeprice;
     GtkEntry* ticker;
+    GtkEntry* companyname;
     GtkDialog* about;
     GtkWidget* about_ok;
     GtkMenuItem* menu_about;
@@ -95,11 +96,12 @@ gboolean on_got_result(gpointer pdata)
 {
     stocklib_asynch_dispose((SLHANDLE)pdata);
     gtk_entry_set_text(controls.lasttradeprice,g_result.c_str());
+    gtk_entry_set_text(controls.companyname,"Test Corporation, Inc.");
     gtk_widget_set_sensitive(controls.gobutton,true);
     return FALSE;
 }
 
-static char rbuffer[SL_MAX_BUFFER]="Oh boy!";
+static char rbuffer[SL_MAX_BUFFER]="";
 
 /**
  * Callback invoked when the OK button of the about dialog is pressed
@@ -180,9 +182,10 @@ int main(int argc, char* argv[])
     controls.gobutton = GTK_WIDGET( gtk_builder_get_object(builder,"gobutton"));
     g_signal_connect(controls.gobutton,"clicked", G_CALLBACK(on_button_clicked), NULL );
 
-    /* Locate the lasttradeprice/ticker text entry widget */
+    /* Locate the lasttradeprice/ticker/company name text entry widget */
     controls.lasttradeprice = GTK_ENTRY( gtk_builder_get_object(builder,"lasttradeprice") );
     controls.ticker = GTK_ENTRY( gtk_builder_get_object(builder,"ticker") );
+    controls.companyname = GTK_ENTRY( gtk_builder_get_object(builder,"companyname") );
 
     /* Locate the controls for the menu */
     controls.menu_about = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
