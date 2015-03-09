@@ -24,6 +24,7 @@ public:
     void testSimpleProblem();
     void testCopyConstructor();
     void testFunctor();
+    void testContainedProblem();
     // @}
 
     /** \cond internal */
@@ -31,6 +32,7 @@ public:
     CPPUNIT_TEST( testSimpleProblem );
     CPPUNIT_TEST( testCopyConstructor );
     CPPUNIT_TEST( testFunctor );
+    CPPUNIT_TEST( testContainedProblem );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

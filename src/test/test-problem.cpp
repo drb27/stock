@@ -1,6 +1,23 @@
 #include "test-problem.h"
 #include <stocklib/problem.h>
 
+class fact : public contained_problem<int,int>
+{
+public:
+    fact(int x) : contained_problem<int,int>(x) {}
+
+protected:
+    virtual int do_work(int x);
+};
+
+int fact::do_work(int x)
+{
+    if (x==1)
+	return 1;
+    else
+	return x * do_work(x-1);
+}
+
 ProblemTestFixture::ProblemTestFixture()
 {
 }
@@ -62,3 +79,8 @@ void ProblemTestFixture::testCopyConstructor()
     CPPUNIT_ASSERT(17==r.solve());
 }
 
+void ProblemTestFixture::testContainedProblem()
+{
+    auto f = fact(4);
+    CPPUNIT_ASSERT(24==f.solve());
+}

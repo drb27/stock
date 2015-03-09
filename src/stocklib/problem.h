@@ -149,4 +149,18 @@ public:
 
 };
 
+template<class Ti,class To>
+class contained_problem : public problem<Ti,To>
+{
+public:
+    contained_problem(const Ti& p) : problem<Ti,To>( [this](Ti i)->To
+	{
+	    return this->do_work(i);
+	}
+	,p) {}
+
+protected:
+    virtual To do_work(Ti)=0;
+};
+
 #endif
