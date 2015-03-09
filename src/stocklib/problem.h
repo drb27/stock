@@ -99,19 +99,17 @@ public:
     {
     }
 
+    virtual ~problem() {}
+
     /**
      * Move constructor.
      */
-    problem( problem&& p ) : _f(std::move(p._f)), _p(std::move(p._p)) 
-    {
-    }
+    problem( problem&& p )=delete;
 
     /**
      * Copy constructor
      */
-    problem( const problem& o ) : _f(o._f), _p(o._p)
-    {
-    }
+    problem( const problem& o )=delete;
 
     /**
      * Move assignment operator is denied (const members)
@@ -175,7 +173,18 @@ public:
 	{
 	    return this->do_work(i);
 	}
-	,p) {}
+	,p) 
+    {
+    }
+
+    contained_problem( contained_problem&& o)=delete;
+    contained_problem( const contained_problem& o)=delete;
+    contained_problem& operator=( const contained_problem& )=delete;
+    contained_problem& operator=( const contained_problem&& )=delete;
+
+    virtual ~contained_problem()
+    {
+    }
 
 protected:
 

@@ -22,7 +22,6 @@ public:
     /** @name Test Cases */
     // @{
     void testSimpleProblem();
-    void testCopyConstructor();
     void testFunctor();
     void testContainedProblem();
     // @}
@@ -30,7 +29,6 @@ public:
     /** \cond internal */
     CPPUNIT_TEST_SUITE( ProblemTestFixture );
     CPPUNIT_TEST( testSimpleProblem );
-    CPPUNIT_TEST( testCopyConstructor );
     CPPUNIT_TEST( testFunctor );
     CPPUNIT_TEST( testContainedProblem );
     CPPUNIT_TEST_SUITE_END();

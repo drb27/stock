@@ -189,12 +189,12 @@ namespace
 
     }
 
-    problem<stock_task_params_t,string> make_problem(string ticker, sl_test_behavior_t b)
+    problem<stock_task_params_t,string>* make_problem(string ticker, sl_test_behavior_t b)
     {
 	stock_task_params_t p;
 	p.ticker = ticker;
 	p.behavior = b;
-	return problem<stock_task_params_t,string>(&despatch,p);
+	return new problem<stock_task_params_t,string>(&despatch,p);
     }
 
 

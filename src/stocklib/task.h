@@ -75,8 +75,10 @@ public:
 	    Reset		///< Prepare the object for re-use
     };
     
-    task( problem<Ti,To> p) : _problem(p) 
+    task( problem<Ti,To>* p)
     {
+	_problem.reset(p);
+
 	// Add states and actions
 	state.add_states( { TaskState::NotPerformed, 
 		    TaskState::InProgress,
@@ -102,6 +104,10 @@ public:
 
 	// Set the initial state
 	state.initialize(TaskState::NotPerformed);
+    }
+
+    virtual ~task()
+    {
     }
 
     ///@name implementation of i_worker:
@@ -171,7 +177,7 @@ private:
 	bool doCompletion=false;
 	try
 	{
-	    _output = std::unique_ptr<To>(new To(_problem() ));
+	    _output = std::unique_ptr<To>(new To((*_problem)() ));
 	    i_worker<To,extype>::set_result(WorkResult::Success);
 	    doCompletion=true;
 	}
@@ -193,7 +199,7 @@ private:
 protected:
 
     mutable std::recursive_mutex _mutex;
-    const problem<Ti,To>  _problem;
+    std::unique_ptr<problem<Ti,To>>  _problem;
     std::unique_ptr<To> _output = nullptr;
     state_machine<TaskState,TaskAction> state;
 }; 

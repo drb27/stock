@@ -63,10 +63,10 @@ TaskTestFixture::~TaskTestFixture()
 
 void TaskTestFixture::setUp()
 {
-    problem<long,long> prb(&fct_success,6);
+    problem<long,long>* prb = new problem<long,long>(&fct_success,6);
     _task = std::unique_ptr<task<long,long>>(new task<long,long>(prb));
 
-    problem<long,long> buggy_prb(&fct_buggy,6);
+    problem<long,long>* buggy_prb = new problem<long,long>(&fct_buggy,6);
     _buggy_task = std::unique_ptr<task<long,long>>(new task<long,long>(buggy_prb));
 }
 
