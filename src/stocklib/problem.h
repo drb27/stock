@@ -149,10 +149,28 @@ public:
 
 };
 
+/**
+ * A problem which encapsulates its algorithm. 
+ *
+ * Unlike a regular problem object, contained_problem objects do not take a
+ * functor paramter during construction. Instead, the do_work() method is
+ * implemented, which gets called during the evaluation of the problem. The
+ * advantage of doing so is that the algorithm is executed in object context,
+ * meaning it has access to the classes methods and data. 
+ *
+ * @param Ti The type of the input to the problem
+ * @param To The type of the output from the problem
+ *
+ */
 template<class Ti,class To>
 class contained_problem : public problem<Ti,To>
 {
 public:
+
+    /**
+     * Constructs the problem, along with the input data. 
+     * @param p The input data to be passed to do_work() during problem evaluation.
+     */
     contained_problem(const Ti& p) : problem<Ti,To>( [this](Ti i)->To
 	{
 	    return this->do_work(i);
@@ -160,7 +178,18 @@ public:
 	,p) {}
 
 protected:
-    virtual To do_work(Ti)=0;
+
+    /**
+     * Encapsulates the algorithm of the problem. Implement this in child
+     * classes to solve the problem. Return the output. 
+     *
+     * @param i The input data to the problem
+     * @return The result of the problem. 
+     *
+     * @note Note that in addition to the input parameter i, the method has
+     * access to all of the objects member data and member functions.
+     */
+    virtual To do_work(Ti i)=0;
 };
 
 #endif
