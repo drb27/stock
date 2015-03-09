@@ -66,6 +66,8 @@ class urltask : public task<std::string,std::string>
 public:
     
     urltask(const std::string& url);
+    urltask(urlproblem*);
+
     urltask( urltask&& ) = delete;
     urltask( const urltask& ) = delete;
 

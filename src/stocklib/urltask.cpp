@@ -153,6 +153,15 @@ urltask::urltask(const string& url) : task<string,string>( new urlproblem(url) )
 }
 
 /**
+ * Alternative constructor. Allows the use of subclasses of urlproblem.
+ *
+ * @param pUrlProblem a pointer to a fully constructed urlproblem object
+ */
+urltask::urltask(urlproblem* pUrlProblem) : task<string,string>( pUrlProblem )
+{
+}
+
+/**
  * Registers a functor to be called when the URL query completes. 
  *
  * @param c The functor to call
