@@ -116,7 +116,7 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
 
     pNewTask->perform_async( [=]()
 			     {
-				 strcpy(output, pNewTask->output().c_str() );
+				 strcpy(output, pNewTask->output()["response"].c_str() );
 			     } );
     return pNewTask;
 }
@@ -157,7 +157,7 @@ sl_result_t stocklib_fetch_synch(const char* ticker, char* output)
     WorkResult r = t.perform_sync();
     if (r==WorkResult::Success)
     {
-	strcpy(output, t.output().c_str() );
+	strcpy(output, t.output()["response"].c_str() );
 	return SL_OK;
     }
     else

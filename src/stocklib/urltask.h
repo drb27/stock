@@ -31,13 +31,14 @@ SOFTWARE.
 #define URLTASK_H
 
 #include <string>
+#include <map>
 #include <functional>
 #include <type_traits>
 
 #include "buffer.h"
 #include "task.h"
 
-class urlproblem : public contained_problem<std::string,std::string>
+class urlproblem : public contained_problem<std::string,std::map<std::string,std::string>>
 {
 public:
     urlproblem(const std::string& url);
@@ -49,10 +50,10 @@ public:
 
 protected:
 
-    virtual std::string do_work(std::string) final;
+    virtual std::map<std::string,std::string> do_work(std::string) final;
     virtual void fetch(buffer&, const std::string&);
     virtual std::string preprocess_url(const std::string&);
-    virtual std::string decode_response(const std::string&);
+    virtual std::map<std::string,std::string> decode_response(const std::string&);
 
 private:
 
@@ -61,7 +62,7 @@ private:
 
 };
 
-class urltask : public task<std::string,std::string>
+class urltask : public task<std::string,std::map<std::string,std::string>>
 {
     
 public:

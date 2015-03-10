@@ -32,6 +32,7 @@ SOFTWARE.
 #define TICKERPROBLEM_H
 
 #include <string>
+#include <map>
 #include <functional>
 
 #include <stocklib/stock-task-modes.h>
@@ -44,7 +45,7 @@ public:
 
 protected:
 
-    virtual std::string decode_response(const std::string&);
+    virtual std::map<std::string,std::string> decode_response(const std::string&);
     virtual std::string preprocess_url(const std::string&);
     virtual void fetch(buffer&, const std::string&);
 private:

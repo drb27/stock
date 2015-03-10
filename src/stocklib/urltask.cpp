@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include <regex>
 #include <functional>
+#include <map>
 #include <curl/curl.h>
 #include <jansson.h>
 #include "buffer.h"
@@ -40,6 +41,7 @@ SOFTWARE.
 using std::string;
 using std::regex;
 using std::function;
+using std::map;
 
 /**
  * @class urlproblem
@@ -64,7 +66,7 @@ using std::function;
  * preprocess_url() )
  */
 urlproblem::urlproblem(const std::string& url) :
-    contained_problem<string,string>(url)
+    contained_problem<string,map<string,string>>(url)
 {
 }
 
@@ -75,7 +77,7 @@ urlproblem::urlproblem(const std::string& url) :
  * @param url The url which was originally passed to the constructor. 
  * @return The decoded response from the server. 
  */
-string urlproblem::do_work(string url)
+map<string,string> urlproblem::do_work(string url)
 {
     /* Allocate a buffer to receive the response */
     buffer rxbuffer(1024);
@@ -100,9 +102,11 @@ string urlproblem::preprocess_url(const string& url)
     return url;
 }
 
-string urlproblem::decode_response(const string& response)
+map<string,string> urlproblem::decode_response(const string& response)
 {
-    return response;
+    map<string,string> m;
+    m["response"] = response;
+    return m;
 }
 
 void urlproblem::perform_query(buffer& b, const string& url)
@@ -153,7 +157,7 @@ size_t urlproblem::rx_data(void *rx_buffer,
  *
  * @param url A fully formed URL
  */
-urltask::urltask(const string& url) : task<string,string>( new urlproblem(url) )
+urltask::urltask(const string& url) : task<string,map<string,string>>( new urlproblem(url) )
 {
 }
 
@@ -162,7 +166,7 @@ urltask::urltask(const string& url) : task<string,string>( new urlproblem(url) )
  *
  * @param pUrlProblem a pointer to a fully constructed urlproblem object
  */
-urltask::urltask(urlproblem* pUrlProblem) : task<string,string>( pUrlProblem )
+urltask::urltask(urlproblem* pUrlProblem) : task<string,map<string,string>>( pUrlProblem )
 {
 }
 

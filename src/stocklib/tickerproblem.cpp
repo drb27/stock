@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include <regex>
 #include <functional>
+#include <map>
 #include <curl/curl.h>
 #include <jansson.h>
 #include "buffer.h"
@@ -40,6 +41,7 @@ SOFTWARE.
 using std::string;
 using std::regex;
 using std::function;
+using std::map;
 
 tickerproblem::tickerproblem(const std::string& ticker, sl_test_behavior_t b ) :
     urlproblem(_url_template), _behavior(b), _ticker(ticker)
@@ -70,8 +72,10 @@ void tickerproblem::fetch(buffer& b, const std::string& url)
 
 }
 
-std::string tickerproblem::decode_response(const std::string& response)
+map<string,string> tickerproblem::decode_response(const std::string& response)
 {
+    map<string,string> d;
+
     /* Ensures all memory is freed correctly, even if an exception is thrown */    
     sweepup<json_t*> trash( [](json_t* obj) { json_decref(obj); }  );
 
@@ -99,14 +103,23 @@ std::string tickerproblem::decode_response(const std::string& response)
 
 		if (quote && json_is_object(quote) )
 		{
+		    auto cname = json_object_get(quote,"Name");
+			
+		    if ( cname && json_is_string(cname) )
+		    {
+			auto str_cname = json_string_value(cname);
+	    
+			d["companyname"] = str_cname;
+		    }
+
 		    auto bid = json_object_get(quote,"LastTradePriceOnly");
 			
 		    if ( bid && json_is_string(bid) )
 		    {
 			auto str_bid = json_string_value(bid);
 	    
-			output = str_bid;
-			return output;
+			d["response"] = str_bid;
+			return d;
 		    }
 		}
 	    }
