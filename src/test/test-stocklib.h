@@ -29,6 +29,10 @@ public:
     void testKnownSymbolResponseAsync();
     void testKnownSymbolResponseAsyncSimultaneous();
     void testKnownSymbolResponseAsyncWithCallback();
+    void testNameCacheNormalNameLookup();
+    void testNameCacheFailedNameLookup();
+    void testNameCacheClearOnReset();
+    void testNameCacheIndirectCache();
     // @}
 
     /** \cond internal */
@@ -41,6 +45,12 @@ public:
     CPPUNIT_TEST( testKnownSymbolResponseAsync );
     CPPUNIT_TEST( testKnownSymbolResponseAsyncSimultaneous );
     CPPUNIT_TEST( testKnownSymbolResponseAsyncWithCallback );
+
+    CPPUNIT_TEST( testNameCacheNormalNameLookup );
+    CPPUNIT_TEST( testNameCacheFailedNameLookup );
+    CPPUNIT_TEST( testNameCacheClearOnReset );
+    CPPUNIT_TEST( testNameCacheIndirectCache );
+
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

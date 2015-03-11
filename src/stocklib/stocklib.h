@@ -85,6 +85,21 @@ extern "C" {
      */
     extern void stocklib_init();
 
+    /**
+     * Returns the full name of the security represeted by the ticker symbol
+     * provided. 
+     *
+     * @note The first time this call is made with a given symbol, and internet
+     * lookup is performed. The result is then cached. Subsequent calls with the
+     * same ticker symbol will return the cached result. Cache entries do not
+     * expire, and do not survive calls to stocklib_cleanup(). The cache is
+     * memory based and is therefore clear on each run of the application.  
+     *
+     * @param ticker The ticker symbol to resolve to a name
+     * @return The name of the underlying security, or NULL if a problem
+     * occured.
+     */
+    extern const char* stocklib_ticker_to_name( const char* ticker );
 
     /**
      * Synchronously fetches the latest trade price of a stock. 

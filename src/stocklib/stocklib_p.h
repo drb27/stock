@@ -87,6 +87,29 @@ extern int  stocklib_p_open_handles();
  */    
 extern void stocklib_p_reset();
 
+/**
+ * Returns true if the name cache currently has an entry for the given ticker,
+ * or false otherwise. 
+ */
+extern BOOL stocklib_p_namecache_has_ticker(const char* ticker);
+
+/**
+ * Returns the number of entries currently in the name cache. 
+ */
+extern int stocklib_p_namecache_count();
+
+/**
+ * Returns the name of the security associated with the given ticker symbol,
+ * directly from the cache. If the cache does not contain the requested entry,
+ * then NULL is returned. 
+ */
+extern const char* stocklib_p_namecache_resolve(const char* ticker);
+
+/**
+ * Inserts an entry into the name cache
+ */
+extern const char* stocklib_p_namecache_insert(const char* ticker, const char* name);
+
 #ifdef STOCKLIB_P_H_C
 }
 #endif

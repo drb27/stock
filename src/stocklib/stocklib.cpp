@@ -31,6 +31,7 @@ SOFTWARE.
 #include <stdexcept>
 #include <set>
 #include <mutex>
+#include <map>
 
 #include <stdio.h>
 #include <string.h>
@@ -40,7 +41,7 @@ SOFTWARE.
 
 typedef std::set<urltask*> taskset;
 
-#define MLOCK std::lock_guard<std::mutex> lock(g_mutex)
+#define MLOCK std::lock_guard<std::recursive_mutex> lock(g_mutex)
 
 namespace 
 {
@@ -48,7 +49,8 @@ namespace
     sl_test_behavior_t g_behavior{SLTBNone};
     BOOL g_testmode{false};
     taskset g_taskset;
-    std::mutex g_mutex;
+    std::recursive_mutex g_mutex;
+    std::map<std::string,std::string> g_namecache;
 }
 
 inline void init_guard()
@@ -66,6 +68,8 @@ void stocklib_init()
     g_initialized = true;
     g_behavior = SLTBNone;
     g_testmode = false;
+    g_namecache.clear();
+    g_taskset.clear();
 }
 
 void stocklib_p_reset()
@@ -75,6 +79,7 @@ void stocklib_p_reset()
     g_taskset.clear();
     g_testmode = false;
     g_behavior = SLTBNone;
+    g_namecache.clear();
 }
 
 void stocklib_p_test_mode(BOOL enable)
@@ -117,6 +122,7 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
     pNewTask->perform_async( [=]()
 			     {
 				 strcpy(output, pNewTask->output()["response"].c_str() );
+				 /// TODO: UPDATE NAME CACHE
 			     } );
     return pNewTask;
 }
@@ -147,6 +153,8 @@ void stocklib_asynch_dispose(SLHANDLE h)
 
 sl_result_t stocklib_fetch_synch(const char* ticker, char* output)
 {
+    MLOCK;
+    init_guard();
 
     // Create a problem
     tickerproblem* pProblem = new tickerproblem(ticker,(g_testmode)?g_behavior:SLTBNone);
@@ -158,6 +166,7 @@ sl_result_t stocklib_fetch_synch(const char* ticker, char* output)
     if (r==WorkResult::Success)
     {
 	strcpy(output, t.output()["response"].c_str() );
+	g_namecache[ticker] = t.output()["companyname"];
 	return SL_OK;
     }
     else
@@ -274,4 +283,58 @@ sl_result_t stocklib_cleanup()
     g_taskset.clear();
     return SL_OK;
 
+}
+
+BOOL stocklib_p_namecache_has_ticker(const char* ticker)
+{
+    MLOCK;
+    return g_namecache.find(ticker)!=g_namecache.end();
+}
+
+int stocklib_p_namecache_count()
+{
+    MLOCK;
+    return g_namecache.size();
+}
+
+const char* stocklib_p_namecache_resolve(const char* ticker)
+{
+    MLOCK;
+    static thread_local char buffer[256];
+    
+    if (g_namecache.count(ticker))
+    {
+	strcpy(buffer,g_namecache[ticker].c_str());
+	return buffer;
+    }
+    else
+	return NULL;
+}
+
+const char* stocklib_p_namecache_insert( const char* ticker, const char* name )
+{
+    MLOCK;
+    g_namecache[ticker] = name;
+}
+
+const char* stocklib_ticker_to_name( const char* ticker )
+{
+    MLOCK;
+    static thread_local char buffer[256];
+
+    if (g_namecache.count(ticker))
+    {
+	strcpy(buffer,g_namecache[ticker].c_str());
+	return buffer;
+    }
+    else
+    {
+	if ( SL_OK == stocklib_fetch_synch(ticker,buffer) )
+	{
+	    strcpy(buffer,g_namecache[ticker].c_str());
+	    return buffer;
+	}
+	else
+	    return NULL;
+    }
 }

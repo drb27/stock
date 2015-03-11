@@ -140,4 +140,53 @@ void StockLibTestFixture::testKnownSymbolResponseAsyncWithCallback()
     CPPUNIT_ASSERT( calledBack );
 }
 
+void StockLibTestFixture::testNameCacheNormalNameLookup()
+{
+    char buffer[32];
+    stocklib_p_test_mode(true);
+    stocklib_p_test_behavior( SLTBNormalRequest );
+    sl_result_t r = stocklib_fetch_synch("ANYTHING",buffer);
 
+    CPPUNIT_ASSERT( SL_OK == r );
+
+    const char* pName  = stocklib_p_namecache_resolve("ANYTHING");
+    CPPUNIT_ASSERT( pName!=NULL );
+    CPPUNIT_ASSERT( 0==strcmp(pName,stocklib_ticker_to_name("ANYTHING") ) );
+}
+
+void StockLibTestFixture::testNameCacheFailedNameLookup()
+{
+    char buffer[32];
+    stocklib_p_test_mode(true);
+    stocklib_p_test_behavior( SLTBGibberishRequest );
+    sl_result_t r = stocklib_fetch_synch("ANYTHING",buffer);
+
+    CPPUNIT_ASSERT( SL_FAIL == r );
+    CPPUNIT_ASSERT( 0 == stocklib_p_namecache_count() );
+
+    const char* pResult = stocklib_ticker_to_name("ANYTHING");
+    CPPUNIT_ASSERT( pResult == NULL );
+}
+
+void StockLibTestFixture::testNameCacheClearOnReset()
+{
+    /* Check clear on init */
+    CPPUNIT_ASSERT(0==stocklib_p_namecache_count());
+
+    /* Add an entry, check not empty, reset */
+    stocklib_p_namecache_insert("TEST","Test Company Inc.");
+    CPPUNIT_ASSERT(1==stocklib_p_namecache_count());
+    stocklib_p_reset();
+
+    /* Check cache is clear again */
+    CPPUNIT_ASSERT(0==stocklib_p_namecache_count());    
+}
+
+void StockLibTestFixture::testNameCacheIndirectCache()
+{
+    char buffer[32];
+    stocklib_p_test_mode(true);
+    stocklib_p_test_behavior( SLTBNormalRequest );
+
+    CPPUNIT_ASSERT( 0==strcmp("Test Inc.",stocklib_ticker_to_name("ANYTHING") ) );
+}
