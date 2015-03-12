@@ -122,7 +122,7 @@ SLHANDLE stocklib_fetch_asynch(const char* ticker, char* output)
     pNewTask->perform_async( [=]()
 			     {
 				 strcpy(output, pNewTask->output()["response"].c_str() );
-				 /// TODO: UPDATE NAME CACHE
+				 g_namecache[ticker] = pNewTask->output()["companyname"];
 			     } );
     return pNewTask;
 }

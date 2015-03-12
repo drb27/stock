@@ -31,7 +31,6 @@ SOFTWARE.
 #include <functional>
 #include <map>
 #include <curl/curl.h>
-#include <jansson.h>
 #include "buffer.h"
 #include "sweepup.h"
 #include "deathrattle.h"

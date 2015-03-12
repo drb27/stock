@@ -96,7 +96,11 @@ gboolean on_got_result(gpointer pdata)
 {
     stocklib_asynch_dispose((SLHANDLE)pdata);
     gtk_entry_set_text(controls.lasttradeprice,g_result.c_str());
-    gtk_entry_set_text(controls.companyname,"Test Corporation, Inc.");
+
+    gtk_entry_set_text(controls.companyname,
+		       stocklib_ticker_to_name( g_ticker.c_str() )
+		       );
+
     gtk_widget_set_sensitive(controls.gobutton,true);
     return FALSE;
 }
