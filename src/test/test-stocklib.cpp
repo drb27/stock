@@ -154,6 +154,21 @@ void StockLibTestFixture::testNameCacheNormalNameLookup()
     CPPUNIT_ASSERT( 0==strcmp(pName,stocklib_ticker_to_name("ANYTHING") ) );
 }
 
+void StockLibTestFixture::testNameCacheNormalNameLookupAsync()
+{
+    char buffer[32];
+    stocklib_p_test_mode(true);
+    stocklib_p_test_behavior( SLTBNormalRequest );
+    SLHANDLE h = stocklib_fetch_asynch("ANYTHING",buffer);
+    sl_result_t r = stocklib_asynch_wait(h);
+    CPPUNIT_ASSERT( SL_OK == r );
+    stocklib_asynch_dispose(h);
+
+    const char* pName  = stocklib_p_namecache_resolve("ANYTHING");
+    CPPUNIT_ASSERT( pName!=NULL );
+    CPPUNIT_ASSERT( 0==strcmp(pName,stocklib_ticker_to_name("ANYTHING") ) );
+}
+
 void StockLibTestFixture::testNameCacheFailedNameLookup()
 {
     char buffer[32];
