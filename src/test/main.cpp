@@ -12,12 +12,14 @@
 #include "test-state.h"
 #include "test-task.h"
 #include "test-stocklib.h"
+#include "test-black-scholes.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(BufferTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(ProblemTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(StateTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(TaskTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(StockLibTestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(BlackScholesTestFixture);
 
 int main(int argc, char* argv[] )
 {

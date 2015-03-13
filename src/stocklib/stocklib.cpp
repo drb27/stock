@@ -38,6 +38,7 @@ SOFTWARE.
 
 #include "stocklib_p.h"
 #include "tickerproblem.h"
+#include "black-scholes.h"
 
 typedef std::set<urltask*> taskset;
 
@@ -337,4 +338,14 @@ const char* stocklib_ticker_to_name( const char* ticker )
 	else
 	    return NULL;
     }
+}
+
+/*
+double bs_call_price(double asset_price, double strike_price, double expiry, double r,
+		     double vol);
+*/
+double stocklib_option_price(option_params_t params)
+{
+    return bs_call_price(params.asset_price, params.strike_price,params.expiry,
+		  params.interest, params.volatility);
 }

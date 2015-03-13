@@ -51,6 +51,25 @@ typedef enum
     SL_TIMEOUT=3		/**< The request timed out   */
 } sl_result_t;
 
+typedef enum _option_type_t 
+{
+    SLOTCall,
+    SLOTPut
+} option_type_t;
+
+/**
+ * Structure representing the parameters needed to estimate the price of an option.
+ */
+typedef struct _option_params_t
+{
+    option_type_t otype;	/**< Call or put  */
+    double asset_price;		/**< Price of the underlying  */
+    double strike_price;	/**< Strike price of the option  */
+    double volatility;		/**< Volatility of the underlying, 1.00 = 100%  */
+    double interest;		/**< Risk-free interest rate, 1.00 = 100%  */
+    double expiry;		/**< Years to expiry, 1.00 = 365 days  */
+} option_params_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -208,6 +227,12 @@ extern "C" {
      * operations are pending. 
      */
     extern sl_result_t stocklib_cleanup();
+
+    /**
+     * Calculates the theoretical value of a option contract from the parameters
+     * passed in. Uses the Black-Scholes method. 
+     */
+    extern double stocklib_option_price(const option_params_t params);
 
 #ifdef __cplusplus
 }

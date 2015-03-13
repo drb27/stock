@@ -6,15 +6,20 @@
  */
 
 #include <iostream>
-#include <thread>
 #include <sstream>
+#include <string>
+#include <set>
+#include <exception>
+#include <stdexcept>
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
 #include <stocklib/stocklib.h>
 
+#define Q(X) #X
+#define QUOTE(X) Q(X)
+
 using std::string;
-using std::thread;
 
 /// The stock fetcher thread takes its input from here. 
 std::string g_ticker = "AAPL";
@@ -22,11 +27,8 @@ std::string g_ticker = "AAPL";
 /// The output from the stock fetcher thread is stored here.
 std::string g_result = ""; 
 
-/// Build datestamp
-#define Q(X) #X
-#define QUOTE(X) Q(X)
+/// Embeds the build date and time into the output
 const std::string g_buildstamp = QUOTE(BUILDSTAMP);
-
 
 /** 
  * Structure to contain pointers to widgets of interest. 
@@ -47,11 +49,162 @@ typedef struct _controls_t
     GtkLabel* buildstamp;
 } controls_t;
 
-static controls_t controls;
+typedef struct _opt_controls_t
+{
+    GtkEntry* asset_price;
+    GtkEntry* strike_price;
+    GtkEntry* volatility;
+    GtkEntry* interest;
+    GtkEntry* expiry;
+    GtkEntry* option_value;
+    GtkWidget* calc_button;
+} opt_controls_t;
 
-/** @name Callbacks
+static controls_t controls;
+static opt_controls_t octrls;
+
+/**
+ * @name Input Validation
+ * Functions and types pertaining to input validation
  * @{
  */
+
+/**
+ * The type for an input validation function
+ */
+typedef bool entry_validator_fn(const string&);
+
+/**
+ * Validates that the given string can be converted into a double precision
+ * floating point number by the runtime library. 
+ *
+ * @param input The string to validate
+ * @return true if validation succeeded, false otherwise
+ */
+bool validate_double(const string& input)
+{
+    try
+    {
+	double r = std::stod(input,nullptr);
+	return true;
+    }
+    catch(...)
+    {
+	return false;
+    }
+}
+
+/**
+ * Validates that the given string can be converted into a double precision
+ * floating point number by the runtime library, and that the resulting value is
+ * greater than zero.  
+ *
+ * @param input The string to validate
+ * @return true if validation succeeded, false otherwise
+ */
+bool validate_positive_double(const string& input)
+{
+    try
+    {
+	double r = std::stod(input,nullptr);
+	return !(r<0.0);
+
+    }
+    catch(...)
+    {
+	return false;
+    }
+}
+
+///@}
+
+/**
+ * @name Application Logic
+ * @{
+ */
+
+/**
+ * Fetches the parameter options from the controls into the given structure.
+ * Throws logic_error if the translation couldn't be done. 
+ *
+ * @param params The structure into which to place the data
+ */
+void fetch_option_params( option_params_t& params)
+{
+    try
+    {
+	params.otype = SLOTCall;
+	params.asset_price = std::stod( gtk_entry_get_text( octrls.asset_price ), nullptr );
+	params.strike_price = std::stod( gtk_entry_get_text( octrls.strike_price ), nullptr );
+	params.volatility = std::stod( gtk_entry_get_text( octrls.volatility ), nullptr );
+	params.interest = std::stod( gtk_entry_get_text( octrls.interest ), nullptr );
+	params.expiry = std::stod( gtk_entry_get_text( octrls.expiry ), nullptr )/365.0d;
+    }
+    catch(...)
+    {
+	throw std::logic_error("Conversion failed");
+    }
+}
+
+///@}
+
+/** 
+ * @name GTK Event Handlers
+ * Functions that respond to GTK signals
+ * @{
+ */
+
+/**
+ * Called when the calculate button is pressed in the options screen.
+ */
+gboolean on_calculate_option_price(gpointer pdata)
+{
+    option_params_t params;
+    fetch_option_params(params);
+
+    double price = stocklib_option_price(params);
+
+    std::stringstream s;
+    s << price;
+    gtk_entry_set_text(octrls.option_value, s.str().c_str());
+}
+
+
+/**
+ * Called each time a GtkEntry widget loses focus in the options calculator
+ * window. Determines if a complete recipe is available, and therefore whether
+ * or not the calculate button can be enabled. 
+ */
+gboolean on_options_recipe_changed(gpointer pdata)
+{
+    static std::set<GtkEntry*> bad_ctrls;
+
+    GdkRGBA red;
+    red.red = 1.0;
+    red.green  = 0.0;
+    red.blue=0.0;
+    red.alpha = 1.0;
+
+    GtkEntry* ctrl = GTK_ENTRY(pdata);
+    string txt = gtk_entry_get_text(ctrl);
+    if (validate_positive_double(txt))
+    {
+	if (bad_ctrls.find(ctrl)!=bad_ctrls.end())
+	{
+	    bad_ctrls.erase(ctrl);
+	    gtk_widget_override_color(GTK_WIDGET(ctrl),GTK_STATE_FLAG_NORMAL,nullptr);
+	}
+    }
+    else
+    {
+	bad_ctrls.insert(ctrl);
+	gtk_widget_override_color(GTK_WIDGET(ctrl),GTK_STATE_FLAG_NORMAL,&red);
+    }
+
+    gtk_widget_set_sensitive( octrls.calc_button, bad_ctrls.size()==0);
+    return FALSE;
+}
+
 
 /**
  * Callback invoked when the main window is destroyed.
@@ -148,7 +301,7 @@ void on_button_clicked()
     stocklib_asynch_register_callback(h,&on_asynch_result,rbuffer); 
 }
 
-//@}
+///@}
 
 /**
  * Application entry point.
@@ -158,7 +311,7 @@ void on_button_clicked()
  */
 int main(int argc, char* argv[])
 {
-    GObject *window;
+    GObject *window,*optioncalc_window;
     GtkBuilder* builder;
  
     /* Initialize GTK */
@@ -182,6 +335,9 @@ int main(int argc, char* argv[])
     window = gtk_builder_get_object(builder,"window");
     g_signal_connect(window,"destroy", G_CALLBACK(on_window_destroy), NULL);
  
+    /* Set up the option calculator window */
+    optioncalc_window = gtk_builder_get_object(builder,"optioncalc");
+
     /* Hook up the clicked signal for the 'go' button */
     controls.gobutton = GTK_WIDGET( gtk_builder_get_object(builder,"gobutton"));
     g_signal_connect(controls.gobutton,"clicked", G_CALLBACK(on_button_clicked), NULL );
@@ -203,6 +359,27 @@ int main(int argc, char* argv[])
     controls.buildstamp = GTK_LABEL( gtk_builder_get_object(builder,"buildstamp") );
     g_signal_connect(controls.about_ok,"clicked", G_CALLBACK(on_about_ok), NULL );
 
+    /* Locate the controls for the option calculator */
+    octrls.interest = GTK_ENTRY( gtk_builder_get_object(builder,"interest") );
+    octrls.expiry = GTK_ENTRY( gtk_builder_get_object(builder,"expiry") );
+    octrls.volatility = GTK_ENTRY( gtk_builder_get_object(builder,"volatility") );
+    octrls.asset_price = GTK_ENTRY( gtk_builder_get_object(builder,"asset_price") );
+    octrls.strike_price = GTK_ENTRY( gtk_builder_get_object(builder,"strike_price") );
+    octrls.calc_button = GTK_WIDGET( gtk_builder_get_object(builder,"option_calc_button") );
+    octrls.option_value = GTK_ENTRY( gtk_builder_get_object(builder,"option_value") );
+
+    std::set<GtkEntry*> ctrls{octrls.interest,octrls.expiry,octrls.volatility,
+	    octrls.asset_price,octrls.strike_price};
+
+    for ( auto c : ctrls )
+    {
+	g_signal_connect(c,"focus-out-event",
+			 G_CALLBACK(on_options_recipe_changed), c);
+    }
+
+    gtk_entry_set_text(octrls.option_value,"???");
+    g_signal_connect(octrls.calc_button,"clicked", G_CALLBACK(on_calculate_option_price),nullptr);
+
     /* Set the buildtstamp label */
     std::stringstream s;
     s << "Built on " << g_buildstamp;
@@ -216,3 +393,4 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
