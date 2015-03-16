@@ -28,14 +28,54 @@ SOFTWARE.
 */
 
 #include <gtk/gtk.h>
+#include <cmath>
 #include "stockchart.h"
 
 G_DEFINE_TYPE (GtkStockChart, stock_chart, GTK_TYPE_DRAWING_AREA);
 
+static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
+{
+    guint width = gtk_widget_get_allocated_width(w);
+    guint height = gtk_widget_get_allocated_height(w);
+
+   /* GtkWidgets know their size on screen, specified in widget->allocation */
+    double x, y;
+    x = width / 2;
+    y = height / 2;
+
+    double radius;
+    radius = MIN (width / 2,
+                  height / 2) - 5;
+
+    /* M_PI - a macro to express the value of pi (precision?) - provided by math.h */
+    cairo_arc (cr, x, y, radius, 0, 2 * M_PI);
+
+    cairo_set_source_rgb (cr, 1, 1, 1);
+    cairo_fill_preserve (cr);
+    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_stroke (cr);
+
+    int i;
+    for (i = 0; i < 12; i++)
+    {
+        int inset;
+        inset = 0.1 * radius;
+        cairo_move_to (cr,
+                       x + (radius - inset) * cos (i * M_PI / 6),
+                       y + (radius - inset) * sin (i * M_PI / 6));
+        cairo_line_to (cr,
+                       x + radius * cos (i * M_PI / 6),
+                       y + radius * sin (i * M_PI / 6));
+        cairo_stroke (cr);
+    } 
+
+    return FALSE;
+}
 
 static void stock_chart_class_init(GtkStockChartClass* c)
 {
     GtkWidgetClass* wc = GTK_WIDGET_CLASS(c);
+    wc->draw = stock_chart_draw;
 }
 
 static void stock_chart_init(GtkStockChart* obj)
