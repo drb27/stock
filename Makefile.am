@@ -5,7 +5,10 @@ stock_SOURCES=src/stock/main.cpp
 stock_LDADD=libstock.a
 stock_CPPFLAGS=-Isrc
 
-stockgui_SOURCES=src/stockgui/main.cpp 
+stockgui_SOURCES=src/stockgui/main.cpp \
+	src/stockgui/stockchart.h \
+	src/stockgui/stockchart.cpp
+ 
 nodist_stockgui_SOURCES=src/stockgui/resources.c
 stockgui_LDADD=libstock.a $(GTK_LIBS)
 stockgui_CPPFLAGS = $(GTK_CFLAGS) -Isrc
