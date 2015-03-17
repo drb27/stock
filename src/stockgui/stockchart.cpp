@@ -38,7 +38,6 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
     guint width = gtk_widget_get_allocated_width(w);
     guint height = gtk_widget_get_allocated_height(w);
 
-   /* GtkWidgets know their size on screen, specified in widget->allocation */
     double x, y;
     x = width / 2;
     y = height / 2;
@@ -80,4 +79,9 @@ static void stock_chart_class_init(GtkStockChartClass* c)
 
 static void stock_chart_init(GtkStockChart* obj)
 {
+}
+
+GtkWidget* stock_chart_new()
+{
+    return GTK_WIDGET( g_object_new( GTK_TYPE_STOCKCHART, NULL) ); 
 }

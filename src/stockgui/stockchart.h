@@ -52,7 +52,7 @@ typedef struct _GtkStockChartClass GtkStockChartClass;
  */
 struct _GtkStockChart
 {
-    GtkDrawingArea* parent;
+    GtkDrawingArea parent;
 };
 
 /**
@@ -62,6 +62,8 @@ struct _GtkStockChartClass
 {
     GtkDrawingAreaClass parent_class;
 };
+
+GtkWidget* stock_chart_new();
 
 #ifdef __cplusplus
 }

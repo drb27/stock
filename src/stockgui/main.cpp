@@ -15,6 +15,7 @@
 #include <gtk/gtk.h>
 #include <curl/curl.h>
 #include <stocklib/stocklib.h>
+#include "stockchart.h"
 
 #define Q(X) #X
 #define QUOTE(X) Q(X)
@@ -46,6 +47,7 @@ typedef struct _controls_t
     GtkWidget* about_ok;
     GtkMenuItem* menu_about;
     GtkMenuItem* menu_quit;
+    GtkMenuItem* menu_stockchart;
     GtkLabel* buildstamp;
 } controls_t;
 
@@ -154,6 +156,8 @@ void fetch_option_params( option_params_t& params)
  * @{
  */
 
+
+
 /**
  * Called when the calculate button is pressed in the options screen.
  */
@@ -233,6 +237,19 @@ gboolean on_menu_about(gpointer pdata)
     gtk_widget_hide(GTK_WIDGET(controls.about));
     return FALSE;
 }
+
+/**
+ * Called when Developer_StockChart Demo option is selected
+ */
+gboolean on_menu_stockchart(gpointer pdata)
+{
+    auto window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window),"StockChart Demo");
+    GtkWidget* sc = stock_chart_new();
+    gtk_container_add(GTK_CONTAINER(window),sc);
+    gtk_widget_show_all(window);
+}
+
 
 /**
  * Callback invoked when the Quit menu option is selected
@@ -350,8 +367,10 @@ int main(int argc, char* argv[])
     /* Locate the controls for the menu */
     controls.menu_about = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
     controls.menu_quit = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_quit") );
+    controls.menu_stockchart = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_developer_stockchart"));
     g_signal_connect(controls.menu_about,"activate", G_CALLBACK(on_menu_about), NULL );
     g_signal_connect(controls.menu_quit,"activate", G_CALLBACK(on_menu_quit), NULL );
+    g_signal_connect(controls.menu_stockchart,"activate", G_CALLBACK(on_menu_stockchart), NULL );
 
     /* Locate the controls for the about box */
     controls.about = GTK_DIALOG( gtk_builder_get_object(builder,"dialog_about"));
