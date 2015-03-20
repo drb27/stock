@@ -57,6 +57,13 @@ typedef enum _option_type_t
     SLOTPut
 } option_type_t;
 
+typedef enum _option_greek_t
+{
+    SLGDelta,
+    SLGTheta,
+    SLGVega
+} option_greek_t;
+
 /**
  * Structure representing the parameters needed to estimate the price of an option.
  */
@@ -233,6 +240,17 @@ extern "C" {
      * passed in. Uses the Black-Scholes method. 
      */
     extern double stocklib_option_price(const option_params_t params);
+
+    /**
+     * Calculates one of the greek values of an option from the parameters
+     * passed in.
+     *
+     * @param params The set of parameters describing the option
+     * @param greek The greek value to calculate
+     *
+     * @return The value of the greek requested for the option.
+     */
+    extern double stocklib_option_greek(const option_params_t params, option_greek_t greek);
 
 #ifdef __cplusplus
 }

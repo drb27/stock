@@ -349,3 +349,20 @@ double stocklib_option_price(option_params_t params)
     return bs_call_price(params.asset_price, params.strike_price,params.expiry,
 		  params.interest, params.volatility);
 }
+
+extern double stocklib_option_greek(const option_params_t params, option_greek_t greek)
+{
+    switch (greek)
+    {
+    case SLGDelta:
+	if (params.otype == SLOTCall)
+	    return bs_call_delta(params.asset_price,params.strike_price,params.expiry,
+				 params.interest,params.volatility);
+	else
+	    return bs_put_delta(params.asset_price,params.strike_price,params.expiry,
+				 params.interest,params.volatility);
+
+    default:
+	return 0.0;
+    };
+}
