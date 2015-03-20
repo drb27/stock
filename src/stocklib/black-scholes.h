@@ -102,6 +102,37 @@ double bs_call_price(double asset_price, double strike_price, double expiry, dou
  * for asset_price and strike_price
  */
 double bs_put_price(double asset_price, double strike_price, double expiry, double r,
-		     double vol);
+		    double vol);
+
+
+/**
+ * Calculates the delta value (greek) of a call option.
+ *
+ * @param asset_price The price of the underlying security
+ * @param strike_price The strike price of the option
+ * @param expiry Time to expiry, in years
+ * @param r The risk-free interest rate
+ * @param vol The volatility of the underlysing security
+ *
+ * @return The greek delta value of the option. This is the amount the option
+ * price is expected to vary given a $1 move in the underlying asset price.
+ */
+double bs_call_delta(double asset_price, double strike_price, double expiry, double r,
+		double vol);
+
+/**
+ * Calculates the delta value (greek) of a put option.
+ *
+ * @param asset_price The price of the underlying security
+ * @param strike_price The strike price of the option
+ * @param expiry Time to expiry, in years
+ * @param r The risk-free interest rate
+ * @param vol The volatility of the underlysing security
+ *
+ * @return The greek delta value of the option. This is the amount the option
+ * price is expected to vary given a $1 move in the underlying asset price.
+ */
+double bs_put_delta(double asset_price, double strike_price, double expiry, double r,
+		double vol);
 
 #endif
