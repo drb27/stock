@@ -58,6 +58,7 @@ typedef struct _opt_controls_t
     GtkEntry* expiry;
     GtkEntry* option_value;
     GtkWidget* calc_button;
+    GtkToggleButton* call_radio;
 } opt_controls_t;
 
 static controls_t controls;
@@ -133,7 +134,11 @@ void fetch_option_params( option_params_t& params)
 {
     try
     {
-	params.otype = SLOTCall;
+	if (gtk_toggle_button_get_active(octrls.call_radio))
+	    params.otype = SLOTCall;
+	else
+	    params.otype = SLOTPut;
+
 	params.asset_price = std::stod( gtk_entry_get_text( octrls.asset_price ), nullptr );
 	params.strike_price = std::stod( gtk_entry_get_text( octrls.strike_price ), nullptr );
 	params.volatility = std::stod( gtk_entry_get_text( octrls.volatility ), nullptr );
@@ -367,6 +372,7 @@ int main(int argc, char* argv[])
     octrls.strike_price = GTK_ENTRY( gtk_builder_get_object(builder,"strike_price") );
     octrls.calc_button = GTK_WIDGET( gtk_builder_get_object(builder,"option_calc_button") );
     octrls.option_value = GTK_ENTRY( gtk_builder_get_object(builder,"option_value") );
+    octrls.call_radio = GTK_TOGGLE_BUTTON( gtk_builder_get_object(builder, "oc_call_radio") );
 
     std::set<GtkEntry*> ctrls{octrls.interest,octrls.expiry,octrls.volatility,
 	    octrls.asset_price,octrls.strike_price};
