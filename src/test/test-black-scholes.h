@@ -29,6 +29,10 @@ public:
     void testCallPriceITMAtOneMonth();
     void testCallPriceOTMAtOneMonth();
     void testCallPriceATMAtOneMonth();
+
+    void testCallDelta();
+    void testPutDelta();
+
     // @}
 
     /** \cond internal */
@@ -42,6 +46,10 @@ public:
     CPPUNIT_TEST( testCallPriceITMAtOneMonth );
     CPPUNIT_TEST( testCallPriceOTMAtOneMonth );
     CPPUNIT_TEST( testCallPriceATMAtOneMonth );
+
+    CPPUNIT_TEST( testCallDelta );
+    CPPUNIT_TEST( testPutDelta );
+
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

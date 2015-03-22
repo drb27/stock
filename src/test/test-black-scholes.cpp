@@ -84,3 +84,15 @@ void BlackScholesTestFixture::testCallPriceATMAtOneMonth()
     double p = bs_call_price(52.0,52.0,0.083,0.03,0.2);
     CPPUNIT_ASSERT( (p>1.2) && (p<1.3) );
 }
+
+void BlackScholesTestFixture::testCallDelta()
+{
+    double p = bs_call_delta(52.0,56.0,0.082,0.03,0.2);    
+    CPPUNIT_ASSERT( (p>0.1) && (p<0.12) );
+}
+
+void BlackScholesTestFixture::testPutDelta()
+{
+    double p = bs_put_delta(52.0,56.0,0.082,0.03,0.2);    
+    CPPUNIT_ASSERT( (p>-0.890) && (p<-0.880) );
+}

@@ -27,7 +27,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <regex>
 #include <functional>
 #include <map>
 #include <curl/curl.h>
@@ -38,7 +37,6 @@ SOFTWARE.
 #include "urltask.h"
 
 using std::string;
-using std::regex;
 using std::function;
 using std::map;
 

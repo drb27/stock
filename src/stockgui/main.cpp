@@ -11,6 +11,7 @@
 #include <set>
 #include <exception>
 #include <stdexcept>
+#include <regex>
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
@@ -21,6 +22,7 @@
 #define QUOTE(X) Q(X)
 
 using std::string;
+using std::regex;
 
 /// The stock fetcher thread takes its input from here. 
 std::string g_ticker = "AAPL";
@@ -59,7 +61,9 @@ typedef struct _opt_controls_t
     GtkEntry* interest;
     GtkEntry* expiry;
     GtkEntry* option_value;
+    GtkEntry* option_delta;
     GtkWidget* calc_button;
+    GtkToggleButton* call_radio;
 } opt_controls_t;
 
 static controls_t controls;
@@ -85,15 +89,8 @@ typedef bool entry_validator_fn(const string&);
  */
 bool validate_double(const string& input)
 {
-    try
-    {
-	double r = std::stod(input,nullptr);
-	return true;
-    }
-    catch(...)
-    {
-	return false;
-    }
+    regex ve("^-?[0-9]+\\.?[0-9]+$");
+    return std::regex_match(input,ve);
 }
 
 /**
@@ -106,16 +103,8 @@ bool validate_double(const string& input)
  */
 bool validate_positive_double(const string& input)
 {
-    try
-    {
-	double r = std::stod(input,nullptr);
-	return !(r<0.0);
-
-    }
-    catch(...)
-    {
-	return false;
-    }
+    regex ve("^[0-9]*\\.?[0-9]+$");
+    return std::regex_match(input,ve);
 }
 
 ///@}
@@ -135,7 +124,11 @@ void fetch_option_params( option_params_t& params)
 {
     try
     {
-	params.otype = SLOTCall;
+	if (gtk_toggle_button_get_active(octrls.call_radio))
+	    params.otype = SLOTCall;
+	else
+	    params.otype = SLOTPut;
+
 	params.asset_price = std::stod( gtk_entry_get_text( octrls.asset_price ), nullptr );
 	params.strike_price = std::stod( gtk_entry_get_text( octrls.strike_price ), nullptr );
 	params.volatility = std::stod( gtk_entry_get_text( octrls.volatility ), nullptr );
@@ -163,14 +156,21 @@ void fetch_option_params( option_params_t& params)
  */
 gboolean on_calculate_option_price(gpointer pdata)
 {
+    /* Retrieve the user input from the UI */
     option_params_t params;
     fetch_option_params(params);
 
-    double price = stocklib_option_price(params);
-
+    /* Get the price, write the output */
     std::stringstream s;
-    s << price;
+    s << stocklib_option_price(params);
     gtk_entry_set_text(octrls.option_value, s.str().c_str());
+
+    s.str("");
+    s.clear();
+
+    /* Get the greeks, write the output */
+    s << stocklib_option_greek(params,SLGDelta);
+    gtk_entry_set_text(octrls.option_delta, s.str().c_str());
 }
 
 
@@ -208,7 +208,6 @@ gboolean on_options_recipe_changed(gpointer pdata)
     gtk_widget_set_sensitive( octrls.calc_button, bad_ctrls.size()==0);
     return FALSE;
 }
-
 
 /**
  * Callback invoked when the main window is destroyed.
@@ -386,6 +385,8 @@ int main(int argc, char* argv[])
     octrls.strike_price = GTK_ENTRY( gtk_builder_get_object(builder,"strike_price") );
     octrls.calc_button = GTK_WIDGET( gtk_builder_get_object(builder,"option_calc_button") );
     octrls.option_value = GTK_ENTRY( gtk_builder_get_object(builder,"option_value") );
+    octrls.option_delta = GTK_ENTRY( gtk_builder_get_object(builder,"option_delta") );
+    octrls.call_radio = GTK_TOGGLE_BUTTON( gtk_builder_get_object(builder, "oc_call_radio") );
 
     std::set<GtkEntry*> ctrls{octrls.interest,octrls.expiry,octrls.volatility,
 	    octrls.asset_price,octrls.strike_price};

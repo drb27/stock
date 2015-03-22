@@ -90,3 +90,29 @@ double bs_put_price(double asset_price, double strike_price, double expiry, doub
 
     return strike_price*exp(-r*expiry)*bs_cndfn(-d2) - asset_price*bs_cndfn(-d1);
 }
+
+double bs_call_delta(double asset_price, double strike_price, double expiry, double r,
+		double vol)
+{
+    /// TODO: Consider guards and boundary conditions
+    double d1 = bs_d1(asset_price,strike_price,r,vol,expiry);
+    double e  = exp(-r*expiry);
+    return e * bs_cndfn(d1);
+    
+}
+
+double bs_put_delta(double asset_price, double strike_price, double expiry, double r,
+		double vol)
+{
+    /// TODO: Consider guards and boundary conditions
+    double d1 = bs_d1(asset_price,strike_price,r,vol,expiry);
+    double e  = exp(-r*expiry);
+    return e * (bs_cndfn(d1) - 1.0);
+}
+
+
+
+
+
+
+
