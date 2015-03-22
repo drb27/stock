@@ -11,18 +11,17 @@
 #include <set>
 #include <exception>
 #include <stdexcept>
-#include <regex>
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
 #include <stocklib/stocklib.h>
 #include "stockchart.h"
+#include "validation.h"
 
 #define Q(X) #X
 #define QUOTE(X) Q(X)
 
 using std::string;
-using std::regex;
 
 /// The stock fetcher thread takes its input from here. 
 std::string g_ticker = "AAPL";
@@ -68,46 +67,6 @@ typedef struct _opt_controls_t
 
 static controls_t controls;
 static opt_controls_t octrls;
-
-/**
- * @name Input Validation
- * Functions and types pertaining to input validation
- * @{
- */
-
-/**
- * The type for an input validation function
- */
-typedef bool entry_validator_fn(const string&);
-
-/**
- * Validates that the given string can be converted into a double precision
- * floating point number by the runtime library. 
- *
- * @param input The string to validate
- * @return true if validation succeeded, false otherwise
- */
-bool validate_double(const string& input)
-{
-    regex ve("^-?[0-9]+\\.?[0-9]+$");
-    return std::regex_match(input,ve);
-}
-
-/**
- * Validates that the given string can be converted into a double precision
- * floating point number by the runtime library, and that the resulting value is
- * greater than zero.  
- *
- * @param input The string to validate
- * @return true if validation succeeded, false otherwise
- */
-bool validate_positive_double(const string& input)
-{
-    regex ve("^[0-9]*\\.?[0-9]+$");
-    return std::regex_match(input,ve);
-}
-
-///@}
 
 /**
  * @name Application Logic

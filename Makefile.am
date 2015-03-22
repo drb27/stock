@@ -7,8 +7,10 @@ stock_CPPFLAGS=-Isrc
 
 stockgui_SOURCES=src/stockgui/main.cpp \
 	src/stockgui/stockchart.h \
-	src/stockgui/stockchart.cpp
- 
+	src/stockgui/stockchart.cpp \
+	src/stockgui/validation.cpp \
+	src/stockgui/validation.h
+
 nodist_stockgui_SOURCES=src/stockgui/resources.c
 stockgui_LDADD=libstock.a $(GTK_LIBS)
 stockgui_CPPFLAGS = $(GTK_CFLAGS) -Isrc
