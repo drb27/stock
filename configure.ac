@@ -29,12 +29,14 @@ AC_CHECK_LIB([curl], [main])
 AC_CHECK_LIB([gcov], [main])
 # FIXME: Replace `main' with a function in `-ljansson':
 AC_CHECK_LIB([jansson], [main])
+AC_CHECK_LIB([m],[exp])
 
 # Checks for header files.
 AC_CHECK_HEADERS([memory.h stdlib.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
 AC_TYPE_SIZE_T
 
 #Check fot GTK3
@@ -43,6 +45,7 @@ PKG_CHECK_MODULES(GTK,gtk+-3.0)
 
 # Checks for library functions.
 AC_FUNC_MALLOC
+AC_CHECK_FUNCS([atexit pow sqrt])
 
 # Set up Doxygen support
 AM_CONDITIONAL([HAVE_DOXYGEN],[test -n "$DOXYGEN"])
