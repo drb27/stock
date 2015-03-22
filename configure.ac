@@ -29,6 +29,8 @@ AC_CHECK_LIB([curl], [main])
 AC_CHECK_LIB([gcov], [main])
 # FIXME: Replace `main' with a function in `-ljansson':
 AC_CHECK_LIB([jansson], [main])
+# FIXME: Replace `main' with a function in `-lpango':
+AC_CHECK_LIB([pango-1.0], [main])
 AC_CHECK_LIB([m],[exp])
 
 # Checks for header files.

@@ -13,7 +13,8 @@ stockgui_SOURCES=src/stockgui/main.cpp \
 
 nodist_stockgui_SOURCES=src/stockgui/resources.c
 stockgui_LDADD=libstock.a $(GTK_LIBS)
-stockgui_CPPFLAGS = $(GTK_CFLAGS) -Isrc
+stockgui_LDFLAGS=`pkg-config --libs pango`
+stockgui_CPPFLAGS = $(GTK_CFLAGS) -Isrc `pkg-config --cflags pango`
 
 noinst_LIBRARIES = libstock.a
 
