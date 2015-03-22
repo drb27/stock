@@ -57,6 +57,7 @@ typedef struct _opt_controls_t
     GtkEntry* interest;
     GtkEntry* expiry;
     GtkEntry* option_value;
+    GtkEntry* option_delta;
     GtkWidget* calc_button;
     GtkToggleButton* call_radio;
 } opt_controls_t;
@@ -172,6 +173,13 @@ gboolean on_calculate_option_price(gpointer pdata)
     std::stringstream s;
     s << price;
     gtk_entry_set_text(octrls.option_value, s.str().c_str());
+
+    s.str("");
+    s.clear();
+
+    price = stocklib_option_greek(params,SLGDelta);
+    s << price;
+    gtk_entry_set_text(octrls.option_delta, s.str().c_str());
 }
 
 
@@ -372,6 +380,7 @@ int main(int argc, char* argv[])
     octrls.strike_price = GTK_ENTRY( gtk_builder_get_object(builder,"strike_price") );
     octrls.calc_button = GTK_WIDGET( gtk_builder_get_object(builder,"option_calc_button") );
     octrls.option_value = GTK_ENTRY( gtk_builder_get_object(builder,"option_value") );
+    octrls.option_delta = GTK_ENTRY( gtk_builder_get_object(builder,"option_delta") );
     octrls.call_radio = GTK_TOGGLE_BUTTON( gtk_builder_get_object(builder, "oc_call_radio") );
 
     std::set<GtkEntry*> ctrls{octrls.interest,octrls.expiry,octrls.volatility,
