@@ -11,6 +11,7 @@
 #include <set>
 #include <exception>
 #include <stdexcept>
+#include <regex>
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
@@ -20,6 +21,7 @@
 #define QUOTE(X) Q(X)
 
 using std::string;
+using std::regex;
 
 /// The stock fetcher thread takes its input from here. 
 std::string g_ticker = "AAPL";
@@ -85,15 +87,8 @@ typedef bool entry_validator_fn(const string&);
  */
 bool validate_double(const string& input)
 {
-    try
-    {
-	double r = std::stod(input,nullptr);
-	return true;
-    }
-    catch(...)
-    {
-	return false;
-    }
+    regex ve("^-?[0-9]+\\.?[0-9]+$");
+    return std::regex_match(input,ve);
 }
 
 /**
@@ -106,16 +101,8 @@ bool validate_double(const string& input)
  */
 bool validate_positive_double(const string& input)
 {
-    try
-    {
-	double r = std::stod(input,nullptr);
-	return !(r<0.0);
-
-    }
-    catch(...)
-    {
-	return false;
-    }
+    regex ve("^[0-9]*\\.?[0-9]+$");
+    return std::regex_match(input,ve);
 }
 
 ///@}
