@@ -152,20 +152,20 @@ void fetch_option_params( option_params_t& params)
  */
 gboolean on_calculate_option_price(gpointer pdata)
 {
+    /* Retrieve the user input from the UI */
     option_params_t params;
     fetch_option_params(params);
 
-    double price = stocklib_option_price(params);
-
+    /* Get the price, write the output */
     std::stringstream s;
-    s << price;
+    s << stocklib_option_price(params);
     gtk_entry_set_text(octrls.option_value, s.str().c_str());
 
     s.str("");
     s.clear();
 
-    price = stocklib_option_greek(params,SLGDelta);
-    s << price;
+    /* Get the greeks, write the output */
+    s << stocklib_option_greek(params,SLGDelta);
     gtk_entry_set_text(octrls.option_delta, s.str().c_str());
 }
 
@@ -204,7 +204,6 @@ gboolean on_options_recipe_changed(gpointer pdata)
     gtk_widget_set_sensitive( octrls.calc_button, bad_ctrls.size()==0);
     return FALSE;
 }
-
 
 /**
  * Callback invoked when the main window is destroyed.
