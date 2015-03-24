@@ -37,12 +37,21 @@ SOFTWARE.
 extern "C" {
 #endif
 
-#define GTK_TYPE_STOCKCHART          (stock_chart_get_type ())
-#define GTK_STOCKCHART(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_STOCKCHART, GtkStockChart))
-#define GTK_STOCKCHART_CLASS(cls)    (G_TYPE_CHECK_CLASS_CAST ((obj), GTK_STOCKCHART, GtkStockChartClass))
-#define GTK_IS_STOCKCHART(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_STOCKCHART))
-#define GTK_IS_CLOCK_FACE_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((obj), GTK_TYPE_STOCKCHART))
-#define GTK_STOCKCHART_GET_CLASS     (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_STOCKCHART, GtkStockChartClass))
+#define GTK_TYPE_STOCKCHART           (stock_chart_get_type ())
+#define GTK_STOCKCHART(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_STOCKCHART, GtkStockChart))
+#define GTK_STOCKCHART_CLASS(cls)     (G_TYPE_CHECK_CLASS_CAST ((obj), GTK_STOCKCHART, GtkStockChartClass))
+#define GTK_IS_STOCKCHART(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_STOCKCHART))
+#define GTK_IS_CLOCK_FACE_CLASS(obj)  (G_TYPE_CHECK_CLASS_TYPE ((obj), GTK_TYPE_STOCKCHART))
+#define GTK_STOCKCHART_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_STOCKCHART, GtkStockChartClass))
+
+extern GType stock_chart_get_type(void);
+
+typedef struct _stockchart_data_t
+{
+    int size;
+    double* x;
+    double* y;
+} stockchart_data_t;
 
 typedef struct _GtkStockChart GtkStockChart;
 typedef struct _GtkStockChartClass GtkStockChartClass;
@@ -53,6 +62,7 @@ typedef struct _GtkStockChartClass GtkStockChartClass;
 struct _GtkStockChart
 {
     GtkDrawingArea parent;
+    gchar* title;
 };
 
 /**
@@ -64,6 +74,9 @@ struct _GtkStockChartClass
 };
 
 GtkWidget* stock_chart_new();
+void stock_chart_set_title(GtkStockChart*, const gchar*);
+const gchar* stock_chart_get_title(GtkStockChart*);
+
 
 #ifdef __cplusplus
 }

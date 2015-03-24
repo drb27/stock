@@ -9,7 +9,9 @@ stockgui_SOURCES=src/stockgui/main.cpp \
 	src/stockgui/stockchart.h \
 	src/stockgui/stockchart.cpp \
 	src/stockgui/validation.cpp \
-	src/stockgui/validation.h
+	src/stockgui/validation.h \
+	src/stockgui/rect.cpp \
+	src/stockgui/rect.h
 
 nodist_stockgui_SOURCES=src/stockgui/resources.c
 stockgui_LDADD=libstock.a $(GTK_LIBS)

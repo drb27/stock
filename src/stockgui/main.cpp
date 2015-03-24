@@ -1,8 +1,7 @@
 /**
- * @file
- * This is the main application file for the stockgui application. 
+ * @file This is the main application file for the stockgui application.
  * stockgui is a simple GTK+3 application which allows the user to query the
- * bid/ask price of any ticker symbol. 
+ * bid/ask price of any ticker symbol.
  */
 
 #include <iostream>
@@ -204,6 +203,7 @@ gboolean on_menu_stockchart(gpointer pdata)
     auto window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window),"StockChart Demo");
     GtkWidget* sc = stock_chart_new();
+    // stock_chart_set_title(GTK_STOCKCHART(sc),"[New Stock Chart 1]");
     gtk_container_add(GTK_CONTAINER(window),sc);
     gtk_widget_show_all(window);
 }

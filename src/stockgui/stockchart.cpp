@@ -28,41 +28,47 @@ SOFTWARE.
 */
 
 #include <gtk/gtk.h>
-#include <cmath>
+#include <pango/pangocairo.h>
+#include "rect.h"
 #include "stockchart.h"
 
 G_DEFINE_TYPE (GtkStockChart, stock_chart, GTK_TYPE_DRAWING_AREA);
 
-class point
+static GtkDrawingAreaClass* parent_class=nullptr;
+
+/**
+ * Gets the maximum value in an unsorted array
+ */
+static double sd_max(double* data,int sz)
 {
-public:
-    point(double xx,double yy) : x(xx), y(yy) {}
-    const double x{0},y{0};
-};
+    if (sz<1) return 0.0;
 
-class rect
+    double* best=data;
+    for (double* i=data+1; i< data+sz; i++)
+    {
+	if ( *i > *best )
+	    best = i;
+    }
+
+    return *best;
+}
+
+/**
+ * Gets the minimum value in an unsorted array
+ */
+static double sd_min(double* data,int sz)
 {
-public:
-    rect(double xx, double yy, double ww, double hh) : origin{xx,yy},width(ww),height(hh) {}
-    const point origin{0.0,0.0};
-    const double width{0},height{0};
+    if (sz<1) return 0.0;
 
-    double top() const { return origin.y+height; }
-    double bottom() const { return origin.y; }
-    double left() const { return origin.x; }
-    double right() const { return origin.x+width; }
-    
-    double area() const { return width*height; }
-    
-    point center() const { return point(origin.x + width/2.0, origin.y + height/2); }
-    point bottomleft() const { return origin; }
-    point bottomright() const { return point(origin.x + width, origin.y); }
-    point topleft() const { return point(origin.x, origin.y + height); }
-    point topright() const { return point(origin.x + width, origin.y + height); }
+    double* best=data;
+    for (double* i=data+1; i< data+sz; i++)
+    {
+	if ( *i < *best )
+	    best = i;
+    }
 
-    rect inset(double i) const { return rect(origin.x+i,origin.y+i,width-2*i,height-2*i); }
-    rect offset( const point& p ) const { return rect(origin.x+p.x,origin.y+p.y,width,height); }
-};
+    return *best;
+}
 
 static void draw_background(cairo_t* cr, rect r)
 {
@@ -72,7 +78,7 @@ static void draw_background(cairo_t* cr, rect r)
     cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.4, 0.4, 0.4, 1.0);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 1.0);
     cairo_set_source(cr, pat);
-    cairo_rectangle(cr, r.left(),r.bottom(), r.width, r.height);
+    cairo_rectangle(cr, r.left(),r.top(), r.width, r.height);
     cairo_fill(cr);
     cairo_restore(cr);
 }
@@ -91,7 +97,7 @@ static void draw_grid(cairo_t* cr,const rect& area, guint divs_x, guint divs_y)
 	cairo_line_to(cr,x,area.top());
     }
 
-    for ( double y = area.bottom(); y < ( area.top() + 0.5*y_size ); y+= y_size )
+    for ( double y = area.top(); y < ( area.bottom() + 0.5*y_size ); y+= y_size )
     {
 	cairo_move_to(cr,area.left(),y);
 	cairo_line_to(cr,area.right(),y);
@@ -100,9 +106,35 @@ static void draw_grid(cairo_t* cr,const rect& area, guint divs_x, guint divs_y)
     cairo_stroke(cr);
 }
 
+static PangoLayout* render_title(cairo_t* cr, const gchar* title)
+{
+
+    PangoLayout* layout = pango_cairo_create_layout(cr);
+
+    pango_layout_set_text(layout,title,-1);
+    PangoFontDescription* desc = pango_font_description_from_string("Sans Bold 11");
+    pango_layout_set_font_description(layout,desc);
+    pango_font_description_free(desc);
+
+    return layout;
+}
+
+static void draw_title(cairo_t* cr, const rect& area, PangoLayout* layout)
+{
+
+    cairo_save(cr);
+
+    cairo_set_source_rgb(cr,1,0,0);
+    cairo_move_to(cr,area.left(),area.top());
+    pango_cairo_show_layout(cr,layout);
+
+    cairo_restore(cr);
+}
 
 static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 {
+    GtkStockChart* sc = GTK_STOCKCHART(w);
+
     guint width = gtk_widget_get_allocated_width(w);
     guint height = gtk_widget_get_allocated_height(w);
 
@@ -113,22 +145,68 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
     y = height / 2;
 
     draw_background(cr,area);
-    draw_grid(cr,area.inset(10),10,10);
+
+    PangoLayout* layout = render_title(cr,sc->title);
+    PangoRectangle ink,logical;
+    pango_layout_get_pixel_extents(layout,&ink,&logical);
+
+    rect titlearea( (width-ink.width)/2,
+		   4.0,
+		   ink.width,
+		   4.0+ink.height);
+
+    rect gridarea = area;
+    gridarea.inset(10.0).avoid(titlearea, 5.0);
+    draw_grid(cr,gridarea,10,10);
+
+    draw_title(cr,titlearea,layout);
+
+    g_object_unref(layout);
 
     return FALSE;
 }
 
+static void stock_chart_finalize(GObject* obj)
+{
+    GtkStockChart* sc = GTK_STOCKCHART(obj);
+    if (sc->title)
+    {
+	g_free(sc->title);
+	sc->title = nullptr;
+    }
+
+    if ( G_OBJECT_CLASS(parent_class)->finalize )
+	G_OBJECT_CLASS(parent_class)->finalize(obj);
+}
+
 static void stock_chart_class_init(GtkStockChartClass* c)
 {
+    parent_class = (GtkDrawingAreaClass*)(g_type_class_peek_parent(c));
     GtkWidgetClass* wc = GTK_WIDGET_CLASS(c);
+    GObjectClass* oc = G_OBJECT_CLASS(c);
     wc->draw = stock_chart_draw;
+    oc->finalize = stock_chart_finalize;
 }
 
 static void stock_chart_init(GtkStockChart* obj)
 {
+    obj->title = g_strdup("[New Stock Chart]");
 }
 
 GtkWidget* stock_chart_new()
 {
     return GTK_WIDGET( g_object_new( GTK_TYPE_STOCKCHART, NULL) ); 
+}
+
+void stock_chart_set_title(GtkStockChart* sc, const gchar* title)
+{
+    if (sc->title)
+	g_free(sc->title);
+
+    sc->title = g_strdup(title);
+}
+
+const gchar* stock_chart_get_title(GtkStockChart* sc)
+{
+    return sc->title;
 }
