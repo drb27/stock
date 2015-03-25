@@ -75,7 +75,7 @@ static void draw_background(cairo_t* cr, rect r)
     cairo_pattern_t* pat;
     cairo_save(cr);
     pat=cairo_pattern_create_linear(r.width/2-5,5, r.width/2-5, r.height-5);
-    cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.4, 0.4, 0.4, 1.0);
+    cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.3, 0.3, 0.3, 1.0);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 1.0);
     cairo_set_source(cr, pat);
     cairo_rectangle(cr, r.left(),r.top(), r.width, r.height);
@@ -83,10 +83,31 @@ static void draw_background(cairo_t* cr, rect r)
     cairo_restore(cr);
 }
 
-static void draw_grid(cairo_t* cr,const rect& area, guint divs_x, guint divs_y)
+static void draw_grid(cairo_t* cr, const GdkRGBA& color, rect area, 
+		      guint divs_x, guint divs_y)
 {
+    static const double X_LABEL_HEIGHT=10.0;
+    static const double Y_LABEL_WIDTH=20.0;
+
+    /* Shrink the chart area to acommodate axis labels */
+    area.setbottom(area.bottom()-X_LABEL_HEIGHT);
+    area.setleft( area.left()+Y_LABEL_WIDTH);
+
+    /* Create X and Y axis label areas */
+    rect xaxislabel(area.left(),area.bottom(),area.width,X_LABEL_HEIGHT);
+    rect yaxislabel(area.left()-Y_LABEL_WIDTH,area.top(),Y_LABEL_WIDTH,area.height);
+
+    /* Paint axis label area */
+    cairo_set_source_rgb(cr, 1.0,1.0,0.0);
+    cairo_rectangle(cr, xaxislabel.left(),xaxislabel.top(), xaxislabel.width, xaxislabel.height);
+    cairo_fill(cr);
+
+    cairo_rectangle(cr, yaxislabel.left(),yaxislabel.top(), yaxislabel.width, yaxislabel.height);
+    cairo_fill(cr);
+
+    /* Now on to the actual grid ... */
     cairo_set_line_width(cr,1.0);
-    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_source_rgb(cr, color.red,color.green,color.blue);
 
     double x_size = area.width / ((double)divs_x);
     double y_size = area.height / ((double)divs_y);
@@ -119,12 +140,12 @@ static PangoLayout* render_title(cairo_t* cr, const gchar* title)
     return layout;
 }
 
-static void draw_title(cairo_t* cr, const rect& area, PangoLayout* layout)
+static void draw_title(cairo_t* cr, const GdkRGBA& color, const rect& area, PangoLayout* layout)
 {
 
     cairo_save(cr);
 
-    cairo_set_source_rgb(cr,1,0,0);
+    cairo_set_source_rgb(cr,color.red,color.green,color.blue);
     cairo_move_to(cr,area.left(),area.top());
     pango_cairo_show_layout(cr,layout);
 
@@ -157,9 +178,9 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 
     rect gridarea = area;
     gridarea.inset(10.0).avoid(titlearea, 5.0);
-    draw_grid(cr,gridarea,10,10);
+    draw_grid(cr,sc->grid_color,gridarea,10,10);
 
-    draw_title(cr,titlearea,layout);
+    draw_title(cr,sc->accent_color,titlearea,layout);
 
     g_object_unref(layout);
 
@@ -191,6 +212,8 @@ static void stock_chart_class_init(GtkStockChartClass* c)
 static void stock_chart_init(GtkStockChart* obj)
 {
     obj->title = g_strdup("[New Stock Chart]");
+    obj->grid_color = GdkRGBA{0.6,0.6,0.6,1.0};
+    obj->accent_color = GdkRGBA{1.0,0.2,0.3,1.0};
 }
 
 GtkWidget* stock_chart_new()
@@ -209,4 +232,14 @@ void stock_chart_set_title(GtkStockChart* sc, const gchar* title)
 const gchar* stock_chart_get_title(GtkStockChart* sc)
 {
     return sc->title;
+}
+
+void stock_chart_set_accent_color( GtkStockChart* sc, const GdkRGBA& c )
+{
+    sc->accent_color = c;
+}
+
+void stok_chart_set_grid_color( GtkStockChart* sc, const GdkRGBA& c )
+{
+    sc->grid_color = c;
 }
