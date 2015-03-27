@@ -127,17 +127,24 @@ static void draw_grid(cairo_t* cr, const GdkRGBA& color, rect area,
     cairo_stroke(cr);
 }
 
-static PangoLayout* render_title(cairo_t* cr, const gchar* title)
+
+static PangoLayout* render_text(cairo_t* cr, const gchar* str, PangoFontDescription* font)
 {
-
     PangoLayout* layout = pango_cairo_create_layout(cr);
-
-    pango_layout_set_text(layout,title,-1);
-    PangoFontDescription* desc = pango_font_description_from_string("Sans Bold 11");
-    pango_layout_set_font_description(layout,desc);
-    pango_font_description_free(desc);
+    pango_layout_set_text(layout,str,-1);
+    pango_layout_set_font_description(layout,font);
 
     return layout;
+}
+
+static PangoLayout* render_text(cairo_t* cr, const gchar* str, const gchar* font)
+{
+    PangoFontDescription* desc = pango_font_description_from_string(font);
+    PangoLayout* layout = render_text(cr,str,desc);
+    pango_font_description_free(desc);
+    
+    return layout;
+
 }
 
 static void draw_title(cairo_t* cr, const GdkRGBA& color, const rect& area, PangoLayout* layout)
@@ -167,7 +174,7 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 
     draw_background(cr,area);
 
-    PangoLayout* layout = render_title(cr,sc->title);
+    PangoLayout* layout = render_text(cr,sc->title,"Sans Bold 12");
     PangoRectangle ink,logical;
     pango_layout_get_pixel_extents(layout,&ink,&logical);
 
