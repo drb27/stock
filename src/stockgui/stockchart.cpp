@@ -192,11 +192,6 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
     guint height = gtk_widget_get_allocated_height(w);
 
     rect area(0.0,0.0,width,height);
-
-    double x, y;
-    x = width / 2;
-    y = height / 2;
-
     draw_background(cr,area);
 
     PangoLayout* layout = render_text(cr,sc->title,"Sans Bold 12");
@@ -248,11 +243,25 @@ static void stock_chart_init(GtkStockChart* obj)
     obj->accent_color = GdkRGBA{1.0,0.2,0.3,1.0};
 }
 
+
+/**
+ * Creates a new stock chart widget.
+ *
+ * @return A pointer to a widget object
+ */
 GtkWidget* stock_chart_new()
 {
     return GTK_WIDGET( g_object_new( GTK_TYPE_STOCKCHART, NULL) ); 
 }
 
+/**
+ * Sets the title of the chart. The title is displayed prominently at the top of
+ * the chart. A copy of the text is taken, rather than storing a pointer to the
+ * string passed in.
+ *
+ * @param sc A pointer to a stock chart widget
+ * @param title A pointer to a string to use as the title.
+ */
 void stock_chart_set_title(GtkStockChart* sc, const gchar* title)
 {
     if (sc->title)
@@ -261,17 +270,37 @@ void stock_chart_set_title(GtkStockChart* sc, const gchar* title)
     sc->title = g_strdup(title);
 }
 
+/**
+ * Returns a pointer to the current title of the chart.
+ *
+ * @note Note that if the title is changed, the pointer previously returned by
+ * this function becomes invalid.
+ *
+ * @param sc A pointer to a stock chart widget
+ */
 const gchar* stock_chart_get_title(GtkStockChart* sc)
 {
     return sc->title;
 }
 
+/**
+ * Sets the accent color for the chart. This color is used for the title text,
+ * as well as the data series line itself.
+ *
+ * @param sc A pointer to a stock chart widget
+ */
 void stock_chart_set_accent_color( GtkStockChart* sc, const GdkRGBA& c )
 {
     sc->accent_color = c;
 }
 
-void stok_chart_set_grid_color( GtkStockChart* sc, const GdkRGBA& c )
+/**
+ * Sets the grid color for the chart. This is the color used to draw the axes
+ * and grid lines.
+ *
+ * @param sc A pointer to a stock chart widget
+ */
+void stock_chart_set_grid_color( GtkStockChart* sc, const GdkRGBA& c )
 {
     sc->grid_color = c;
 }

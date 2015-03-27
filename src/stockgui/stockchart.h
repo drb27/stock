@@ -79,7 +79,7 @@ GtkWidget* stock_chart_new();
 void stock_chart_set_title(GtkStockChart*, const gchar*);
 const gchar* stock_chart_get_title(GtkStockChart*);
 void stock_chart_set_accent_color( GtkStockChart*, const GdkRGBA&);
-void stock_chart_set_accent_color( GtkStockChart*, const GdkRGBA&);
+void stock_chart_set_grid_color( GtkStockChart*, const GdkRGBA&);
 
 #ifdef __cplusplus
 }
