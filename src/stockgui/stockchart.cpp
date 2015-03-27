@@ -70,64 +70,6 @@ static double sd_min(double* data,int sz)
     return *best;
 }
 
-static void draw_background(cairo_t* cr, rect r)
-{
-    cairo_pattern_t* pat;
-    cairo_save(cr);
-    pat=cairo_pattern_create_linear(r.width/2-5,5, r.width/2-5, r.height-5);
-    cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.3, 0.3, 0.3, 1.0);
-    cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 1.0);
-    cairo_set_source(cr, pat);
-    cairo_rectangle(cr, r.left(),r.top(), r.width, r.height);
-    cairo_fill(cr);
-    cairo_restore(cr);
-}
-
-static void draw_grid(cairo_t* cr, const GdkRGBA& color, rect area, 
-		      guint divs_x, guint divs_y)
-{
-    static const double X_LABEL_HEIGHT=10.0;
-    static const double Y_LABEL_WIDTH=20.0;
-
-    /* Shrink the chart area to acommodate axis labels */
-    area.setbottom(area.bottom()-X_LABEL_HEIGHT);
-    area.setleft( area.left()+Y_LABEL_WIDTH);
-
-    /* Create X and Y axis label areas */
-    rect xaxislabel(area.left(),area.bottom(),area.width,X_LABEL_HEIGHT);
-    rect yaxislabel(area.left()-Y_LABEL_WIDTH,area.top(),Y_LABEL_WIDTH,area.height);
-
-    /* Paint axis label area */
-    cairo_set_source_rgb(cr, 1.0,1.0,0.0);
-    cairo_rectangle(cr, xaxislabel.left(),xaxislabel.top(), xaxislabel.width, xaxislabel.height);
-    cairo_fill(cr);
-
-    cairo_rectangle(cr, yaxislabel.left(),yaxislabel.top(), yaxislabel.width, yaxislabel.height);
-    cairo_fill(cr);
-
-    /* Now on to the actual grid ... */
-    cairo_set_line_width(cr,1.0);
-    cairo_set_source_rgb(cr, color.red,color.green,color.blue);
-
-    double x_size = area.width / ((double)divs_x);
-    double y_size = area.height / ((double)divs_y);
-
-    for ( double x = area.left(); x < (area.right() + 0.5*x_size ); x+= x_size )
-    {
-	cairo_move_to(cr,x,area.bottom());
-	cairo_line_to(cr,x,area.top());
-    }
-
-    for ( double y = area.top(); y < ( area.bottom() + 0.5*y_size ); y+= y_size )
-    {
-	cairo_move_to(cr,area.left(),y);
-	cairo_line_to(cr,area.right(),y);
-    }
-
-    cairo_stroke(cr);
-}
-
-
 static PangoLayout* render_text(cairo_t* cr, const gchar* str, PangoFontDescription* font)
 {
     PangoLayout* layout = pango_cairo_create_layout(cr);
@@ -147,7 +89,20 @@ static PangoLayout* render_text(cairo_t* cr, const gchar* str, const gchar* font
 
 }
 
-static void draw_title(cairo_t* cr, const GdkRGBA& color, const rect& area, PangoLayout* layout)
+static void draw_background(cairo_t* cr, rect r)
+{
+    cairo_pattern_t* pat;
+    cairo_save(cr);
+    pat=cairo_pattern_create_linear(r.width/2-5,5, r.width/2-5, r.height-5);
+    cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.3, 0.3, 0.3, 1.0);
+    cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 1.0);
+    cairo_set_source(cr, pat);
+    cairo_rectangle(cr, r.left(),r.top(), r.width, r.height);
+    cairo_fill(cr);
+    cairo_restore(cr);
+}
+
+static void draw_text(cairo_t* cr, const GdkRGBA& color, const rect& area, PangoLayout* layout)
 {
 
     cairo_save(cr);
@@ -157,6 +112,76 @@ static void draw_title(cairo_t* cr, const GdkRGBA& color, const rect& area, Pang
     pango_cairo_show_layout(cr,layout);
 
     cairo_restore(cr);
+}
+
+static void draw_grid(cairo_t* cr, const GdkRGBA& color, rect area, 
+		      guint divs_x, guint divs_y)
+{
+    /* Create a font for the axis labels */
+    GdkRGBA labelColor;
+    labelColor.red=1.0;
+    labelColor.blue=1.0;
+    labelColor.green=1.0;
+    PangoFontDescription* labelfont = pango_font_description_from_string("Sans 8");
+    
+    /* Get label height and width */
+    PangoLayout* test_layout = render_text(cr,"XXX",labelfont);
+    PangoRectangle ink,logical;
+    pango_layout_get_pixel_extents(test_layout,&ink,&logical);
+
+    g_object_unref(test_layout);
+
+    static const double X_LABEL_HEIGHT=logical.height+4;
+    static const double Y_LABEL_WIDTH=logical.width+4;
+
+    /* Shrink the chart area to acommodate axis labels */
+    area.setbottom(area.bottom()-X_LABEL_HEIGHT);
+    area.setleft( area.left()+Y_LABEL_WIDTH);
+
+    /* Create X and Y axis label areas */
+    rect xaxislabel(area.left(),area.bottom(),area.width,X_LABEL_HEIGHT);
+    rect yaxislabel(area.left()-Y_LABEL_WIDTH,area.top(),Y_LABEL_WIDTH,area.height);
+
+    /* Now on to the actual grid ... */
+    cairo_set_line_width(cr,1.0);
+    cairo_set_source_rgb(cr, color.red,color.green,color.blue);
+
+    double x_size = area.width / ((double)divs_x);
+    double y_size = area.height / ((double)divs_y);
+
+    for ( double x = area.left(); x < (area.right() + 0.5*x_size ); x+= x_size )
+    {
+	/* Draw grid line */
+	cairo_move_to(cr,x,area.bottom());
+	cairo_line_to(cr,x,area.top());
+
+	/* Render x axis label */
+	PangoLayout* label = render_text(cr,"4.3",labelfont);
+	pango_layout_get_pixel_extents(label,&ink,&logical);
+	rect labelArea(x-ink.width/2.0,xaxislabel.top()+2.0,1,1);
+	draw_text(cr,labelColor,labelArea,label);
+	g_object_unref(label);
+    }
+
+    for ( double y = area.top(); y < ( area.bottom() + 0.5*y_size ); y+= y_size )
+    {
+	/* Draw grid line */
+	cairo_move_to(cr,area.left(),y);
+	cairo_line_to(cr,area.right(),y);
+
+	/* Render y axis label */
+	PangoLayout* label = render_text(cr,"9.69",labelfont);
+	pango_layout_get_pixel_extents(label,&ink,&logical);
+	rect labelArea(yaxislabel.left(),y-ink.height/2.0,1.0,1.0);
+	draw_text(cr,labelColor,labelArea,label);
+	g_object_unref(label);
+
+    }
+
+    cairo_stroke(cr);
+
+    /* Free the font description */
+    pango_font_description_free(labelfont);
 }
 
 static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
@@ -187,7 +212,7 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
     gridarea.inset(10.0).avoid(titlearea, 5.0);
     draw_grid(cr,sc->grid_color,gridarea,10,10);
 
-    draw_title(cr,sc->accent_color,titlearea,layout);
+    draw_text(cr,sc->accent_color,titlearea,layout);
 
     g_object_unref(layout);
 
