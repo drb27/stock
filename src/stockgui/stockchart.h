@@ -55,6 +55,7 @@ typedef struct _stockchart_data_t
 
 typedef struct _GtkStockChart GtkStockChart;
 typedef struct _GtkStockChartClass GtkStockChartClass;
+typedef struct _GtkStockChartPrivate GtkStockChartPrivate;
 
 /**
  *
@@ -62,6 +63,7 @@ typedef struct _GtkStockChartClass GtkStockChartClass;
 struct _GtkStockChart
 {
     GtkDrawingArea parent;
+    GtkStockChartPrivate* priv;
     gchar* title;
     GdkRGBA accent_color;
     GdkRGBA grid_color;

@@ -34,7 +34,16 @@ SOFTWARE.
 
 G_DEFINE_TYPE (GtkStockChart, stock_chart, GTK_TYPE_DRAWING_AREA);
 
+#define GTK_STOCKCHART_GET_PRIVATE(obj) \
+    (G_TYPE_INSTANCE_GET_PRIVATE( (obj), GTK_TYPE_STOCKCHART , GtkStockChartPrivate ))
+
 static GtkDrawingAreaClass* parent_class=nullptr;
+
+struct _GtkStockChartPrivate
+{
+    const double* data;
+    size_t data_size;
+};
 
 /**
  * Gets the maximum value in an unsorted array
@@ -229,7 +238,9 @@ static void stock_chart_finalize(GObject* obj)
 
 static void stock_chart_class_init(GtkStockChartClass* c)
 {
+    g_type_class_add_private(c,sizeof(GtkStockChartPrivate));
     parent_class = (GtkDrawingAreaClass*)(g_type_class_peek_parent(c));
+
     GtkWidgetClass* wc = GTK_WIDGET_CLASS(c);
     GObjectClass* oc = G_OBJECT_CLASS(c);
     wc->draw = stock_chart_draw;
@@ -241,6 +252,9 @@ static void stock_chart_init(GtkStockChart* obj)
     obj->title = g_strdup("[New Stock Chart]");
     obj->grid_color = GdkRGBA{0.6,0.6,0.6,1.0};
     obj->accent_color = GdkRGBA{1.0,0.2,0.3,1.0};
+    obj->priv = GTK_STOCKCHART_GET_PRIVATE(obj);
+    obj->priv->data = nullptr;
+    obj->priv->data_size = 0;
 }
 
 
