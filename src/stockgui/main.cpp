@@ -200,9 +200,11 @@ gboolean on_menu_about(gpointer pdata)
  */
 gboolean on_menu_stockchart(gpointer pdata)
 {
+    static double testdata[] = {2.0,1.0,4.0,5.0,6.0,7.0,9.0,8.0,9.5,9.7,9.9};
     auto window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window),"StockChart Demo");
     GtkWidget* sc = stock_chart_new();
+    stock_chart_set_data(GTK_STOCKCHART(sc),testdata,11,0,10);
     // stock_chart_set_title(GTK_STOCKCHART(sc),"[New Stock Chart 1]");
     gtk_container_add(GTK_CONTAINER(window),sc);
     gtk_widget_show_all(window);

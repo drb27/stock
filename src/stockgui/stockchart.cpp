@@ -27,6 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <string.h>
 #include <gtk/gtk.h>
 #include <pango/pangocairo.h>
 #include "rect.h"
@@ -41,8 +42,10 @@ static GtkDrawingAreaClass* parent_class=nullptr;
 
 struct _GtkStockChartPrivate
 {
-    const double* data;
+    double* data;
     size_t data_size;
+    double upper;
+    double lower;
 };
 
 /**
@@ -232,6 +235,13 @@ static void stock_chart_finalize(GObject* obj)
 	sc->title = nullptr;
     }
 
+    if (sc->priv->data)
+    {
+	delete[] sc->priv->data;
+	sc->priv->data_size = 0;
+	sc->priv->data = nullptr;
+    }
+
     if ( G_OBJECT_CLASS(parent_class)->finalize )
 	G_OBJECT_CLASS(parent_class)->finalize(obj);
 }
@@ -317,4 +327,21 @@ void stock_chart_set_accent_color( GtkStockChart* sc, const GdkRGBA& c )
 void stock_chart_set_grid_color( GtkStockChart* sc, const GdkRGBA& c )
 {
     sc->grid_color = c;
+}
+
+/**
+ * Sets the data to display on the chart. 
+ */
+void stock_chart_set_data( GtkStockChart* sc, const double* data, size_t sz,
+			   double upper, double lower)
+{
+    if (sc->priv->data)
+	delete[] sc->priv->data;
+
+    sc->priv->data = new double[sz];
+    sc->priv->data_size = sz;
+    memcpy(sc->priv->data,data,sz*sizeof(double));
+
+    sc->priv->upper = upper;
+    sc->priv->lower = lower;
 }
