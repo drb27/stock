@@ -46,6 +46,7 @@ struct _GtkStockChartPrivate
     size_t data_size;
     double upper;
     double lower;
+    guint xdivs;
 };
 
 /**
@@ -333,7 +334,7 @@ void stock_chart_set_grid_color( GtkStockChart* sc, const GdkRGBA& c )
  * Sets the data to display on the chart. 
  */
 void stock_chart_set_data( GtkStockChart* sc, const double* data, size_t sz,
-			   double upper, double lower)
+			   double upper, double lower, guint xdivs)
 {
     if (sc->priv->data)
 	delete[] sc->priv->data;
@@ -344,4 +345,5 @@ void stock_chart_set_data( GtkStockChart* sc, const double* data, size_t sz,
 
     sc->priv->upper = upper;
     sc->priv->lower = lower;
+    sc->priv->xdivs = xdivs;
 }

@@ -204,8 +204,8 @@ gboolean on_menu_stockchart(gpointer pdata)
     auto window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window),"StockChart Demo");
     GtkWidget* sc = stock_chart_new();
-    stock_chart_set_data(GTK_STOCKCHART(sc),testdata,11,0,10);
-    // stock_chart_set_title(GTK_STOCKCHART(sc),"[New Stock Chart 1]");
+    stock_chart_set_data(GTK_STOCKCHART(sc),testdata,11,0,10,10);
+    stock_chart_set_title(GTK_STOCKCHART(sc),"Option Premium Decay Prediction");
     gtk_container_add(GTK_CONTAINER(window),sc);
     gtk_widget_show_all(window);
 }
