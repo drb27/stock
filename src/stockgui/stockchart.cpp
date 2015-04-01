@@ -28,10 +28,13 @@ SOFTWARE.
 */
 
 #include <string.h>
+#include <sstream>
 #include <gtk/gtk.h>
 #include <pango/pangocairo.h>
 #include "rect.h"
 #include "stockchart.h"
+
+using std::stringstream;
 
 G_DEFINE_TYPE (GtkStockChart, stock_chart, GTK_TYPE_DRAWING_AREA);
 
@@ -127,7 +130,7 @@ static void draw_text(cairo_t* cr, const GdkRGBA& color, const rect& area, Pango
     cairo_restore(cr);
 }
 
-static void draw_grid(cairo_t* cr, const GdkRGBA& color, rect area, 
+static void draw_grid(GtkStockChart* sc, cairo_t* cr, const GdkRGBA& color, rect area, 
 		      guint divs_x, guint divs_y)
 {
     /* Create a font for the axis labels */
@@ -162,6 +165,10 @@ static void draw_grid(cairo_t* cr, const GdkRGBA& color, rect area,
     double x_size = area.width / ((double)divs_x);
     double y_size = area.height / ((double)divs_y);
 
+    double xval = sc->priv->lower;
+    double delta_xval = (sc->priv->upper - sc->priv->lower)/divs_x;
+    
+
     for ( double x = area.left(); x < (area.right() + 0.5*x_size ); x+= x_size )
     {
 	/* Draw grid line */
@@ -169,11 +176,15 @@ static void draw_grid(cairo_t* cr, const GdkRGBA& color, rect area,
 	cairo_line_to(cr,x,area.top());
 
 	/* Render x axis label */
-	PangoLayout* label = render_text(cr,"4.3",labelfont);
+	stringstream s;
+	s.precision(2);
+	s << xval;
+	PangoLayout* label = render_text(cr,s.str().c_str(),labelfont);
 	pango_layout_get_pixel_extents(label,&ink,&logical);
 	rect labelArea(x-ink.width/2.0,xaxislabel.top()+2.0,1,1);
 	draw_text(cr,labelColor,labelArea,label);
 	g_object_unref(label);
+	xval += delta_xval;
     }
 
     for ( double y = area.top(); y < ( area.bottom() + 0.5*y_size ); y+= y_size )
@@ -218,7 +229,7 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 
     rect gridarea = area;
     gridarea.inset(10.0).avoid(titlearea, 5.0);
-    draw_grid(cr,sc->grid_color,gridarea,10,10);
+    draw_grid(sc,cr,sc->grid_color,gridarea,10,10);
 
     draw_text(cr,sc->accent_color,titlearea,layout);
 
@@ -334,7 +345,7 @@ void stock_chart_set_grid_color( GtkStockChart* sc, const GdkRGBA& c )
  * Sets the data to display on the chart. 
  */
 void stock_chart_set_data( GtkStockChart* sc, const double* data, size_t sz,
-			   double upper, double lower, guint xdivs)
+			   double lower, double upper, guint xdivs)
 {
     if (sc->priv->data)
 	delete[] sc->priv->data;
