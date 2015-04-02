@@ -167,7 +167,9 @@ static void draw_grid(GtkStockChart* sc, cairo_t* cr, const GdkRGBA& color, rect
 
     double xval = sc->priv->lower;
     double delta_xval = (sc->priv->upper - sc->priv->lower)/divs_x;
-    
+
+    double yval = sd_max( sc->priv->data, sc->priv->data_size);
+    double delta_yval = ( yval - sd_min( sc->priv->data, sc->priv->data_size) )/divs_y; 
 
     for ( double x = area.left(); x < (area.right() + 0.5*x_size ); x+= x_size )
     {
@@ -194,12 +196,15 @@ static void draw_grid(GtkStockChart* sc, cairo_t* cr, const GdkRGBA& color, rect
 	cairo_line_to(cr,area.right(),y);
 
 	/* Render y axis label */
-	PangoLayout* label = render_text(cr,"9.69",labelfont);
+	stringstream s;
+	s.precision(2);
+	s << yval;
+	PangoLayout* label = render_text(cr,s.str().c_str(),labelfont);
 	pango_layout_get_pixel_extents(label,&ink,&logical);
 	rect labelArea(yaxislabel.left(),y-ink.height/2.0,1.0,1.0);
 	draw_text(cr,labelColor,labelArea,label);
 	g_object_unref(label);
-
+	yval -= delta_yval;
     }
 
     cairo_stroke(cr);
