@@ -130,7 +130,7 @@ static void draw_text(cairo_t* cr, const GdkRGBA& color, const rect& area, Pango
     cairo_restore(cr);
 }
 
-static void draw_grid(GtkStockChart* sc, cairo_t* cr, const GdkRGBA& color, rect area, 
+static rect draw_grid(GtkStockChart* sc, cairo_t* cr, const GdkRGBA& color, rect area, 
 		      guint divs_x, guint divs_y)
 {
     /* Create a font for the axis labels */
@@ -211,6 +211,8 @@ static void draw_grid(GtkStockChart* sc, cairo_t* cr, const GdkRGBA& color, rect
 
     /* Free the font description */
     pango_font_description_free(labelfont);
+
+    return area;
 }
 
 static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
@@ -220,9 +222,11 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
     guint width = gtk_widget_get_allocated_width(w);
     guint height = gtk_widget_get_allocated_height(w);
 
+    /* Draw the background */
     rect area(0.0,0.0,width,height);
     draw_background(cr,area);
 
+    /* Layout title and grid */
     PangoLayout* layout = render_text(cr,sc->title,"Sans Bold 12");
     PangoRectangle ink,logical;
     pango_layout_get_pixel_extents(layout,&ink,&logical);
@@ -234,11 +238,17 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 
     rect gridarea = area;
     gridarea.inset(10.0).avoid(titlearea, 5.0);
-    draw_grid(sc,cr,sc->grid_color,gridarea,10,10);
 
+    /* Draw the grid */
+    gridarea = draw_grid(sc,cr,sc->grid_color,gridarea,10,10);
+
+    /* Draw the title */
     draw_text(cr,sc->accent_color,titlearea,layout);
-
     g_object_unref(layout);
+
+    /* Draw the grid line */
+
+
 
     return FALSE;
 }
