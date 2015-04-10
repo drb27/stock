@@ -92,4 +92,42 @@ public:
     bool intersects( const rect& other) const;
 };
 
+class lrect : public rect
+{
+public:
+    lrect( double xx, double yy, double ww, double hh,
+	   double xl, double xh, double yl, double yh )
+	: rect(xx,yy,ww,hh), _xl(xl), _xh(xh), _yl(yl), _yh(yh)
+    {
+	init_transform();
+    }
+
+    lrect( const rect& r, double xl, double xh, double yl, double yh )
+	: rect(r), _xl(xl), _xh(xh), _yl(yl), _yh(yh)
+    {
+	init_transform();
+    }
+
+
+    void init_transform()
+    {
+	_mx = width / (_xh-_xl);
+	_my = height / (_yh-_yl);
+    }
+
+    point logical_to_context( const point& lp )
+    {
+	return point( _mx*(lp.x - _xl) + left(),
+		      _my*(lp.y - _yl) + top() );
+    }
+
+private:
+    double _mx;
+    double _my;
+    double _xh;
+    double _xl;
+    double _yh;
+    double _yl;
+};
+
 #endif
