@@ -130,6 +130,31 @@ static void draw_text(cairo_t* cr, const GdkRGBA& color, const rect& area, Pango
     cairo_restore(cr);
 }
 
+static void draw_data_series(GtkStockChart* sc, cairo_t* cr, const lrect& area, double* data, size_t sz)
+{
+    point lp(0,0),cp(0,0);
+    double lx = sc->priv->lower;
+    double ldx = (sc->priv->upper - sc->priv->lower) / ( sc->priv->data_size - 1);
+
+    lp.x = lx;
+    lp.y = sc->priv->data[0];
+    cp = area.logical_to_context(lp);
+    cairo_move_to(cr,cp.x,cp.y);
+
+    int index=1;
+    cairo_set_line_width(cr,2.0);
+    for ( lx = sc->priv->lower + ldx; lx < (sc->priv->upper + 0.5*ldx); lx += ldx, index++ )
+    {
+	lp.x = lx;
+	lp.y = sc->priv->data[index];
+	cp = area.logical_to_context(lp);
+	cairo_line_to(cr,cp.x,cp.y);
+    }
+
+    cairo_stroke(cr);
+    
+}
+
 static rect draw_grid(GtkStockChart* sc, cairo_t* cr, const GdkRGBA& color, rect area, 
 		      guint divs_x, guint divs_y)
 {
@@ -241,6 +266,17 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 
     /* Draw the grid */
     gridarea = draw_grid(sc,cr,sc->grid_color,gridarea,10,10);
+
+    double xl = sc->priv->lower;
+    double xh = sc->priv->upper;
+    double yl = sd_min( sc->priv->data, sc->priv->data_size );
+    double yh = sd_max( sc->priv->data, sc->priv->data_size );
+
+    /* Create a logical conversion rectangle */
+    lrect lgridarea(gridarea, xl,xh,yl,yh );
+
+    /* Draw the data line using the logical grid area */
+    draw_data_series(sc,cr,lgridarea,sc->priv->data,sc->priv->data_size);
 
     /* Draw the title */
     draw_text(cr,sc->accent_color,titlearea,layout);

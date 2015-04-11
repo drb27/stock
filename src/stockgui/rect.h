@@ -115,10 +115,10 @@ public:
 	_my = height / (_yh-_yl);
     }
 
-    point logical_to_context( const point& lp )
+    point logical_to_context( const point& lp ) const
     {
 	return point( _mx*(lp.x - _xl) + left(),
-		      _my*(lp.y - _yl) + top() );
+		      bottom() - _my*(lp.y - _yl) );
     }
 
 private:
