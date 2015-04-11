@@ -130,7 +130,8 @@ static void draw_text(cairo_t* cr, const GdkRGBA& color, const rect& area, Pango
     cairo_restore(cr);
 }
 
-static void draw_data_series(GtkStockChart* sc, cairo_t* cr, const lrect& area, double* data, size_t sz)
+static void draw_data_series(GtkStockChart* sc, cairo_t* cr, const lrect& area, double* data, size_t sz,
+			     const GdkRGBA& color)
 {
     point lp(0,0),cp(0,0);
     double lx = sc->priv->lower;
@@ -143,6 +144,7 @@ static void draw_data_series(GtkStockChart* sc, cairo_t* cr, const lrect& area, 
 
     int index=1;
     cairo_set_line_width(cr,2.0);
+    cairo_set_source_rgb(cr, color.red,color.green,color.blue);
     for ( lx = sc->priv->lower + ldx; lx < (sc->priv->upper + 0.5*ldx); lx += ldx, index++ )
     {
 	lp.x = lx;
@@ -276,7 +278,7 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
     lrect lgridarea(gridarea, xl,xh,yl,yh );
 
     /* Draw the data line using the logical grid area */
-    draw_data_series(sc,cr,lgridarea,sc->priv->data,sc->priv->data_size);
+    draw_data_series(sc,cr,lgridarea,sc->priv->data,sc->priv->data_size,sc->accent_color);
 
     /* Draw the title */
     draw_text(cr,sc->accent_color,titlearea,layout);
