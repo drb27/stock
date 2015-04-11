@@ -48,7 +48,6 @@ typedef struct _controls_t
     GtkWidget* about_ok;
     GtkMenuItem* menu_about;
     GtkMenuItem* menu_quit;
-    GtkMenuItem* menu_stockchart;
     GtkLabel* buildstamp;
 } controls_t;
 
@@ -242,22 +241,6 @@ gboolean on_menu_about(gpointer pdata)
 }
 
 /**
- * Called when Developer_StockChart Demo option is selected
- */
-gboolean on_menu_stockchart(gpointer pdata)
-{
-    static double testdata[] = {2.0,1.0,4.0,5.0,6.0,7.0,9.0,8.0,9.5,9.7,9.9};
-    auto window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window),"StockChart Demo");
-    GtkWidget* sc = stock_chart_new();
-    stock_chart_set_data(GTK_STOCKCHART(sc),testdata,11,0,10,10);
-    stock_chart_set_title(GTK_STOCKCHART(sc),"Option Premium Decay Prediction");
-    gtk_container_add(GTK_CONTAINER(window),sc);
-    gtk_widget_show_all(window);
-}
-
-
-/**
  * Callback invoked when the Quit menu option is selected
  */
 gboolean on_menu_quit(gpointer pdata)
@@ -373,10 +356,8 @@ int main(int argc, char* argv[])
     /* Locate the controls for the menu */
     controls.menu_about = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_about") );
     controls.menu_quit = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_quit") );
-    controls.menu_stockchart = GTK_MENU_ITEM( gtk_builder_get_object(builder,"menu_developer_stockchart"));
     g_signal_connect(controls.menu_about,"activate", G_CALLBACK(on_menu_about), NULL );
     g_signal_connect(controls.menu_quit,"activate", G_CALLBACK(on_menu_quit), NULL );
-    g_signal_connect(controls.menu_stockchart,"activate", G_CALLBACK(on_menu_stockchart), NULL );
 
     /* Locate the controls for the about box */
     controls.about = GTK_DIALOG( gtk_builder_get_object(builder,"dialog_about"));

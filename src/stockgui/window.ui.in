@@ -482,28 +482,6 @@
                 </child>
               </object>
             </child>
-            <child>
-              <object class="GtkMenuItem" id="menuitem7">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">_Developer</property>
-                <property name="use_underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu" id="menu6">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="menu_developer_stockchart">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_StockChart Demo</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>
