@@ -10,6 +10,7 @@
 #include <set>
 #include <exception>
 #include <stdexcept>
+#include <math.h>
 
 #include <gtk/gtk.h>
 #include <curl/curl.h>
@@ -61,6 +62,7 @@ typedef struct _opt_controls_t
     GtkEntry* option_value;
     GtkEntry* option_delta;
     GtkWidget* calc_button;
+    GtkWidget* expiry_button;
     GtkToggleButton* call_radio;
 } opt_controls_t;
 
@@ -129,6 +131,47 @@ gboolean on_calculate_option_price(gpointer pdata)
     /* Get the greeks, write the output */
     s << stocklib_option_greek(params,SLGDelta);
     gtk_entry_set_text(octrls.option_delta, s.str().c_str());
+
+}
+
+/**
+ * Called when the user presses the 'Show expiry' button, to call up a chart of
+ * the option price from now to expiry
+ */
+gboolean on_show_expiry_graph(gpointer dta)
+{
+    /* Fetch the recipe from the GUI */
+    option_params_t params;
+    fetch_option_params(params);
+
+    /* Convert expiry into days */
+    int max_days = int( ceil(params.expiry * 365.0) );
+    int sz = max_days+1;
+
+    double* data = new double[sz];
+
+    /* Calculate the option price on each day */
+    for (int day = max_days, index=0; day>=0; day--,index++ )
+    {
+	params.expiry = ((double)day) / 365.0;
+	data[index] = stocklib_option_price(params);
+    }
+
+    /* Create a window & stock chart widget */
+    auto window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window),"Time decay to expiry");
+    GtkWidget* sc = stock_chart_new();
+    gtk_container_add(GTK_CONTAINER(window),sc);
+
+    /* Configure the stock chart */
+    stock_chart_set_data(GTK_STOCKCHART(sc),data,sz,0,max_days,max_days);
+    stock_chart_set_title(GTK_STOCKCHART(sc),"Option Premium Decay Prediction");
+
+    /* Display */
+    gtk_widget_show_all(window);
+
+    /* Finished with the data */
+    delete[] data;
 }
 
 
@@ -164,6 +207,9 @@ gboolean on_options_recipe_changed(gpointer pdata)
     }
 
     gtk_widget_set_sensitive( octrls.calc_button, bad_ctrls.size()==0);
+    gtk_widget_set_sensitive( octrls.expiry_button, bad_ctrls.size()==0);
+    
+    
     return FALSE;
 }
 
@@ -345,9 +391,12 @@ int main(int argc, char* argv[])
     octrls.asset_price = GTK_ENTRY( gtk_builder_get_object(builder,"asset_price") );
     octrls.strike_price = GTK_ENTRY( gtk_builder_get_object(builder,"strike_price") );
     octrls.calc_button = GTK_WIDGET( gtk_builder_get_object(builder,"option_calc_button") );
+    octrls.expiry_button = GTK_WIDGET( gtk_builder_get_object(builder,"option_expiry_button") );
     octrls.option_value = GTK_ENTRY( gtk_builder_get_object(builder,"option_value") );
     octrls.option_delta = GTK_ENTRY( gtk_builder_get_object(builder,"option_delta") );
     octrls.call_radio = GTK_TOGGLE_BUTTON( gtk_builder_get_object(builder, "oc_call_radio") );
+
+    gtk_widget_set_sensitive(octrls.expiry_button,false);
 
     std::set<GtkEntry*> ctrls{octrls.interest,octrls.expiry,octrls.volatility,
 	    octrls.asset_price,octrls.strike_price};
@@ -360,6 +409,7 @@ int main(int argc, char* argv[])
 
     gtk_entry_set_text(octrls.option_value,"???");
     g_signal_connect(octrls.calc_button,"clicked", G_CALLBACK(on_calculate_option_price),nullptr);
+    g_signal_connect(octrls.expiry_button,"clicked", G_CALLBACK(on_show_expiry_graph),nullptr);
 
     /* Set the buildtstamp label */
     std::stringstream s;

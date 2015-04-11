@@ -27,6 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <iostream>
 #include <string.h>
 #include <sstream>
 #include <gtk/gtk.h>
@@ -267,7 +268,7 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
     gridarea.inset(10.0).avoid(titlearea, 5.0);
 
     /* Draw the grid */
-    gridarea = draw_grid(sc,cr,sc->grid_color,gridarea,10,10);
+    gridarea = draw_grid(sc,cr,sc->grid_color,gridarea,sc->priv->xdivs,10);
 
     double xl = sc->priv->lower;
     double xh = sc->priv->upper;
@@ -293,6 +294,7 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 
 static void stock_chart_finalize(GObject* obj)
 {
+    std::cout << "Boom!" << std::endl;
     GtkStockChart* sc = GTK_STOCKCHART(obj);
     if (sc->title)
     {
