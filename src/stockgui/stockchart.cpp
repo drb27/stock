@@ -294,7 +294,6 @@ static gboolean stock_chart_draw(GtkWidget* w, cairo_t* cr)
 
 static void stock_chart_finalize(GObject* obj)
 {
-    std::cout << "Boom!" << std::endl;
     GtkStockChart* sc = GTK_STOCKCHART(obj);
     if (sc->title)
     {
