@@ -185,11 +185,11 @@ gboolean on_options_recipe_changed(gpointer pdata)
 {
     static std::set<GtkEntry*> bad_ctrls;
 
-    GdkRGBA red;
-    red.red = 1.0;
-    red.green  = 0.0;
-    red.blue=0.0;
-    red.alpha = 1.0;
+    static const GdkRGBA red {
+	.red = 1.0,
+	    .green  = 0.0,
+	    .blue=0.0,
+	    .alpha = 1.0 };
 
     GtkEntry* ctrl = GTK_ENTRY(pdata);
     string txt = gtk_entry_get_text(ctrl);
