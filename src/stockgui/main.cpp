@@ -24,13 +24,13 @@
 using std::string;
 
 /// The stock fetcher thread takes its input from here. 
-std::string g_ticker = "AAPL";
+string g_ticker = "AAPL";
 
 /// The output from the stock fetcher thread is stored here.
-std::string g_result = ""; 
+string g_result = "";
 
 /// Embeds the build date and time into the output
-const std::string g_buildstamp = QUOTE(BUILDSTAMP);
+const string g_buildstamp = QUOTE(BUILDSTAMP);
 
 /** 
  * Structure to contain pointers to widgets of interest. 
