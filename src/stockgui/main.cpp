@@ -67,6 +67,8 @@ typedef struct _opt_controls_t
 
 static controls_t controls;
 static opt_controls_t octrls;
+static GObject *window,*optioncalc_window;
+
 
 /**
  * @name Application Logic
@@ -310,33 +312,10 @@ void on_button_clicked()
 ///@}
 
 /**
- * Application entry point.
  *
- * Constructuts the UI from compiled-in resources, then hands control over
- * to the GTK+ event processing loop.
  */
-int main(int argc, char* argv[])
+static void build_ui(GtkBuilder* builder)
 {
-    GObject *window,*optioncalc_window;
-    GtkBuilder* builder;
- 
-    /* Initialize GTK */
-    gtk_init(&argc,&argv);
-
-    /* Initialize CURL library */
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    /* Initialize the stocklib library */
-    stocklib_init();
-
-    /* Contruct the UI from the compiled-in resource data */
-    GError *error=nullptr;
-    builder = gtk_builder_new();
-
-    gtk_builder_add_from_resource(builder,
-				  "/org/david.bradshaw.usa.gmail.com/stockgui/window.ui",
-				  &error);
-
     /* Set up the main window */
     window = gtk_builder_get_object(builder,"window");
     g_signal_connect(window,"destroy", G_CALLBACK(on_window_destroy), NULL);
@@ -396,6 +375,37 @@ int main(int argc, char* argv[])
     std::stringstream s;
     s << "Built on " << g_buildstamp;
     gtk_label_set_text(controls.buildstamp, s.str().c_str());
+
+}
+
+/**
+ * Application entry point.
+ *
+ * Constructuts the UI from compiled-in resources, then hands control over
+ * to the GTK+ event processing loop.
+ */
+int main(int argc, char* argv[])
+{
+    GtkBuilder* builder;
+ 
+    /* Initialize GTK */
+    gtk_init(&argc,&argv);
+
+    /* Initialize CURL library */
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    /* Initialize the stocklib library */
+    stocklib_init();
+
+    /* Contruct the UI from the compiled-in resource data */
+    GError *error=nullptr;
+    builder = gtk_builder_new();
+
+    gtk_builder_add_from_resource(builder,
+				  "/org/david.bradshaw.usa.gmail.com/stockgui/window.ui",
+				  &error);
+
+    build_ui(builder);
     
     /* Dispose of the builder */
     g_object_unref(builder);
